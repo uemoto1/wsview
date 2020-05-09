@@ -1,0 +1,2 @@
+# wsview
+Web SALMON View
