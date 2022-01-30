@@ -22,10 +22,10 @@ class Namelist {
             // スペースとコメントを削除
             str = str.replace(/^\s*/, "");
             str = str.replace(/\s*(!.*)?$/, "");
-            
+
             // 空行は読み飛ばす
             if (!str) continue;
-            
+
             // グループ開始部分(&xxxx)を検出
             var tmp = str.match(/^&(\w+)$/);
             if (tmp) {
@@ -69,7 +69,7 @@ class Namelist {
 
                 continue;
             }
-            
+
             err.push({lineno:i+1, msg:"invalid syntax!"});
         }
 
@@ -102,7 +102,7 @@ class Namelist {
                 if (! isNaN(tmp)) return tmp;
             }
         } else if (type.match(/^real/i)) {
-            if (str.match(/^\s*[+-]?\s*\d*\.?\d+([ed][+-]?\d+)?\s*$/i)) {                
+            if (str.match(/^\s*[+-]?\s*\d*\.?\d+([ed][+-]?\d+)?\s*$/i)) {
                 var tmp = parseFloat(str.replace(/d/i, "e"));
                 if (! isNaN(tmp)) return tmp;
             }
