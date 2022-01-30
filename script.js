@@ -193,13 +193,19 @@ rule = {
 
 
 function plot() {
-    console.log("START");
     var nml = new Namelist(rule);
     nml.ignore = ["atomic_red_coor"];
     nml.parse(editor.textarea.value);
-    console.log(nml.data);
-    console.log(nml.warning);
-    console.log(nml.error);
+
+    err = []; warn = [];
+    for (var tmp in nml.error)
+      err.push(nml.error[tmp].lineno);
+    for (var tmp in nml.warning)
+    warn.push(nml.warn[tmp].lineno);
+
+    console.log(err,warn);
+    editor.mark(warn, err);
+    
 }
 
 function resize() {

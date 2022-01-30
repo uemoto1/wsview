@@ -24,12 +24,24 @@ class Editor {
         this.lineno.style.top = (-editor.textarea.scrollTop) + "px";
     }
 
-
     resize() {
         this.textarea.style.left = this.lineno.offsetWidth + "px";
         this.textarea.style.width = (this.parent.clientWidth - this.textarea.offsetLeft - 5) + "px";
         this.textarea.style.height = this.parent.clientHeight + "px";
     };
+
+    mark(mark=[], err=[]) {
+        var tmp = this.lineno.children;
+        for(var i=0; i<tmp.length; i++) {
+            if (mark.includes(i+1)) {
+                tmp[i].className = "mark";
+            } else if (err.includes(i+1)) {
+                tmp[i].className = "err";
+            } else {
+                tmp[i].className = "";
+            }
+        }
+    }
 }
 
 

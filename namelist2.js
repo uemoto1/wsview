@@ -2,20 +2,14 @@
 
 class Namelist {
     constructor(rule) {
-        this.rule = this._deepCopy(rule);
         this.error = [];
         this.warning = [];
         this.ignore = [];
-        this.reset();
-    }
-
-    reset() {
-        this.data = {};
-        for(var group in this.rule) {
-            this.data[group] = {};
-            for(var title in this.rule[group])
-                this.data[group][title] = this._genDefaultArray(group, title);
-        }
+        this.data = this._deepCopy(rule, true);
+        // Initialize variables
+        for(var group in this.data)
+            for(var title in this.data[group])
+                this.data[group][title].val = this._genDefault(group, title);
     }
 
     parse(code) {
@@ -62,7 +56,7 @@ class Namelist {
             if (tmp) {
                 var title = tmp[1].toLowerCase();
 
-                if (! ((group in this.rule) && (title in this.rule[group]))) {
+                if (! ((group in this.data) && (title in this.data[group]))) {
                     warn.push({lineno:i+1, msg:"undefined variable name or group!"});
                     continue;
                 }
@@ -81,20 +75,20 @@ class Namelist {
 
         this.error = err;
         this.warning = warn;
-        
-
     }
 
-    _deepCopy(x) {
-        return JSON.parse(JSON.stringify(x));
+    _deepCopy(x, lower=false) {
+        var tmp = JSON.stringify(x);
+        if (lower) tmp = tmp.toLowerCase();
+        return JSON.parse(tmp);
     }
 
     _isUndefinedGroup(group) {
-        return ! ((group in this.rule) || (this.ignore.includes(group)));
+        return ! ((group in this.data) || (this.ignore.includes(group)));
     }
 
     _getArrayDimension(group, title) {
-        var tmp = this.rule[group][title];
+        var tmp = this.data[group][title];
         // if (tmp.kmax != undefined) return 3;
         if (tmp.jmax != undefined) return 2;
         if (tmp.imax != undefined) return 1;
@@ -123,8 +117,8 @@ class Namelist {
     }
 
 
-    _genDefaultArray(group, title) {
-        var target = this.rule[group][title];
+    _genDefault(group, title) {
+        var target = this.data[group][title];
         // 初期値が指定されている場合は単純コピーを行う
         if (target.default_val instanceof Object)
             return this._deepCopy(target.default_val);
@@ -156,12 +150,12 @@ class Namelist {
     }
 
     _assign(group, title, indices, values) {
-        var target = this.rule[group][title];
+        var target = this.data[group][title];
         switch (this._getArrayDimension(group, title)) {
         case 0: // スカラ変数の代入
             var x = this._parseFortranValue(values, target.type);
             if (x == undefined) return "invalid format of " + target.type;
-            this.data[group][title] = x;
+            this.data[group][title].val = x;
             break;
         case 1: // 一次元配列の代入
             if (indices == undefined) return "unsupported assginment style";
@@ -174,7 +168,7 @@ class Namelist {
                 if (! (imin <= i && i <= imax)) return "out of index range";
                 var x = this._parseFortranValue(values, target.type);
                 if (x == undefined) return "invalid format of " + target.type;
-                this.data[group][title][i] = x;
+                this.data[group][title].val[i] = x;
                 break;
             }
             // スライス型代入
@@ -190,7 +184,7 @@ class Namelist {
                 for (var i=iimin; i<=iimax; i++) {
                     var x = this._parseFortranValue(tmp[i-imin], target.type);
                     if (x == undefined) return "invalid format of " + target.type;
-                    this.data[group][title][i] = x;
+                    this.data[group][title].val[i] = x;
                 }
                 break;
             }
