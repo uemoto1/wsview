@@ -2,7 +2,7 @@
 salmon202_ignore = [
     'opt', 'md', 'poisson', 'band',
     'singlescale', 'maxwell', 'jellium',
-    'code', 'atomic_red_coor',
+    'code', 'atomic_red_coor', 'atomic_coor'
 ];
 
 salmon202_namelist = {
@@ -322,7 +322,11 @@ salmon202_sample = `!###########################################################
 /
 `;
 
+
+
 class SALMON202 {
+
+
 
     constructor() {
         this.namelist = new Namelist(salmon202_namelist);
@@ -332,22 +336,70 @@ class SALMON202 {
     }
 
     parse(inputfile) {
+
         this.namelist.parse(inputfile);
         // Namelist読み込み時にエラーが検出された場合は終了する
         this.error = this.namelist.error;
         this.warning = this.namelist.warning;
-        if (this.namelist.error > 0) {
-            console.log(this.error);
-            return;
-        }
-        // 原子座標データを読み込む
-        this.coor = this.read_atomic_coor(inputfile)
+        if (this.namelist.error.length > 0) return;
 
+        // ベクトル計算
+        if (this.namelist.data.units.unit_system.val == "A_eV_fs") {
+            this.unit_length = 0.52917721067;
+            this.unit_time = 0.02418884326505;
+        } else {
+            this.unit_length = 1.0;
+            this.unit_time = 1.0;
+        }
+
+        this.vec_a1 = {};
+        this.vec_a2 = {};
+        this.vec_a3 = {};
+        var system = this.namelist.data.system;
+        var f = 1.0 / this.unit_length;
+        if (this._is_non_orthogonal()) {
+            this.vec_a1.x = system.al_vec1.val[1] * f;
+            this.vec_a1.y = system.al_vec1.val[2] * f;
+            this.vec_a1.z = system.al_vec1.val[3] * f;
+            this.vec_a2.x = system.al_vec2.val[1] * f;
+            this.vec_a2.y = system.al_vec2.val[2] * f;
+            this.vec_a2.z = system.al_vec2.val[3] * f;
+            this.vec_a3.x = system.al_vec3.val[1] * f;
+            this.vec_a3.y = system.al_vec3.val[2] * f;
+            this.vec_a3.z = system.al_vec3.val[3] * f;
+        } else {
+            this.vec_a1.x = system.al.val[1] * f;
+            this.vec_a1.y = 0.0;
+            this.vec_a1.z = 0.0;
+            this.vec_a2.x = 0.0;
+            this.vec_a2.y = system.al.val[2] * f;
+            this.vec_a2.z = 0.0;
+            this.vec_a3.x = 0.0;
+            this.vec_a3.y = 0.0;
+            this.vec_a3.z = system.al.val[3] * f;
+        }
+
+        // 原子座標データを読み込む
+        this.atom_data = this._read_atomic_coor(inputfile)
+        console.log(this.atom_data);
     }
 
+    _is_non_orthogonal() {
+        var flag = false;
+        var tmp = [
+            this.namelist.data.system.al_vec1.val,
+            this.namelist.data.system.al_vec2.val,
+            this.namelist.data.system.al_vec3.val
+        ];
+        for (var i in tmp)
+            for (var j in tmp[i])
+                if (tmp[i][j] != 0) flag = true
+        return flag;
+    }
 
-    read_atomic_coor(inputfile) {
+    _read_atomic_coor(inputfile) {
         // Parse atomic coordinate
+
         var buf = []
         var flag = false;
         var line = inputfile.split(/\r?\n/);
@@ -357,33 +409,44 @@ class SALMON202 {
             str = str.replace(/\s*(!.*)?$/, "");
             if (! str) continue;
 
-            if (str.match(/^&atomic_red_coor$/i)) {
+            if (str.match(/^&atomic(_red)?_coor$/i)) {
                 flag = true;
                 continue;
             }
 
-            if (flag) {
-                if (str.match(/^\/$/)) break;
-                // 座標データの読み込み
-                var tmp = str.split(/\s+/);
-                if (tmp.length != 5) {
-                    this.error.push({lineno:i+1, msg:"invalid coordinate format"});
-                    continue;
-                }
-                var e = tmp[0];
-                var x = parseFloat(tmp[1].replace(/d/i, "e"));
-                var y = parseFloat(tmp[2].replace(/d/i, "e"));
-                var z = parseFloat(tmp[3].replace(/d/i, "e"));
-                var iz = parseInt(tmp[4]);
-                if (isNaN(x) || isNaN(y) || isNaN(z) || isNaN(iz)) {
-                    this.error.push({lineno:i+1, msg:"invalid numeric format"});
-                    continue;
-                }
+            if (! flag) continue;
 
-                buf.push([e, x, y, z, iz])
+            if (str.match(/^\/$/)) break;
+
+            // 座標データの読み込み
+            var tmp = str.split(/\s+/);
+            if (tmp.length != 5) {
+                this.error.push({lineno:i+1, msg:"invalid coordinate format"});
+                continue;
             }
+            var e = tmp[0];
+            var t1 = this._parseFortranFloat(tmp[1]);
+            var t2 = this._parseFortranFloat(tmp[2]);
+            var t3 = this._parseFortranFloat(tmp[3]);
+            var ik = parseInt(tmp[4]);
+            if (isNaN(t1) || isNaN(t2) || isNaN(t3) || isNaN(ik)) {
+                this.error.push({lineno:i+1, msg:"invalid numeric format"});
+                continue;
+            }
+            if (! (1 <= ik && ik <= this.namelist.data.system.nelem.val)) {
+                this.error.push({lineno:i+1, msg:"undefined element index"});
+            }
+            var iz = this.namelist.data.pseudo.izatom.val[ik];
+            buf.push({t1:t1, t2:t2, t3:t3, iz:iz, lineno:(i+1)});
+
         }
         return buf;
+    }
+
+    _parseFortranFloat(x) {
+        if (x.match(/\s*[+-]?\s*\d*\.\d+([de][+-]?\d+)?\s*$/i))
+            return parseFloat(x.replace(/d/i, "e"));
+        return NaN;
     }
 
 

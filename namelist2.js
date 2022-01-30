@@ -6,6 +6,9 @@ class Namelist {
         this.warning = [];
         this.ignore = [];
         this.data = this._deepCopy(rule, true);
+    }
+
+    reset() {
         // Initialize variables
         for(var group in this.data)
             for(var title in this.data[group])
@@ -13,6 +16,7 @@ class Namelist {
     }
 
     parse(code) {
+        this.reset();
         var err = [], warn = [];
         var group = "";
         var line = code.split(/\r?\n/);

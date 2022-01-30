@@ -108,6 +108,16 @@ class Crystal3D {
         this.renderer.render(this.scene, this.camera);
     }
 
+    clear() {
+        // 既存のオブジェクトを消去
+        this.axes.clear();
+        this.atom.clear();
+        this.bond.clear();
+        this.cell.clear();
+        // セレクタを解除
+        this.selected_index = -1;
+        this.selector.visible = false;
+    }
 
     plot(origin_center=true) {
         // ローカル変数
@@ -117,14 +127,8 @@ class Crystal3D {
         const a1 = this.vec_a1;
         const a2 = this.vec_a2;
         const a3 = this.vec_a3;
-        // 既存のオブジェクトを消去
-        this.axes.clear();
-        this.atom.clear();
-        this.bond.clear();
-        this.cell.clear();
-        // セレクタを解除
-        this.selected_index = -1;
-        this.selector.visible = false;
+        // 消去
+        this.clear();
         // 座標軸描画
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);
@@ -179,7 +183,7 @@ class Crystal3D {
                 // g := (ri + rj) / 2
                 var g = new THREE.Vector3();
                 g.addVectors(ri, rj).multiplyScalar(0.5);
-                const geometry = new THREE.CylinderGeometry(0.1, 0.1, d.length()-2, 8);
+                const geometry = new THREE.CylinderGeometry(0.2, 0.2, d.length()-2, 8);
                 const cylinder = new THREE.Mesh(geometry, this.bond_material);
                 cylinder.position.copy(g)
                 cylinder.quaternion.setFromUnitVectors(this.ey, d.normalize());
@@ -246,7 +250,7 @@ class Crystal3D {
             this.model.quaternion.copy(q);
             this.axes.quaternion.copy(q);
             // 再描画
-            this.redraw(resize=false);
+            this.redraw(resize);
         }
     }
 
@@ -264,7 +268,7 @@ class Crystal3D {
             this.selected_index = -1;
             this.selector.visible = false;
         }
-        this.redraw(resize=false);
+        this.redraw(false);
     }
     
 

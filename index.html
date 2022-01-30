@@ -19,7 +19,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-6" id="panelLeft" style="background-color: #eee;">
-            <div class="row">
+            <div class="row" style="padding: 0px 24px;">
                 <small >Paste inputfile below and click "Plot" button to draw.</small>
                 <button class="btn btn-primary" id="btnPlot" >Plot</button>
             </div>
@@ -31,7 +31,8 @@
                 panelControl
             </div>
             <div class="row" id="panelViewer" style="background-color: #eee;">
-                panelViewer
+                <canvas id="plotCrystal" style="background-color: #fff;"></canvas>
+                <canvas id="plotWaveform" style="background-color: #fff;"></canvas>
             </div>
         </div>
     </div>
@@ -46,6 +47,7 @@
 <script type="application/javascript" src="editor.js"></script>
 <script type="application/javascript" src="namelist2.js"></script>
 <script type="application/javascript" src="salmon202.js"></script>
+<script type="application/javascript" src="crystal3d.js"></script>
 <script type="application/javascript" src="script.js"></script>
 <!-- <script type="application/javascript" src="namelist.js"></script> -->
 </html>
