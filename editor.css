@@ -1,5 +1,5 @@
 .editor * {
-    font-size: 12pt;
+    font-size: 10pt;
     font-family: 'Courier New', Courier, monospace;
 }
 
@@ -16,7 +16,8 @@
 .editor div p {
     padding: 0px!important;
     margin: 0px!important;
-    text-align: right!important;
+    text-align: right;
+    color: black;
 }
 
 .editor div {
