@@ -31,6 +31,8 @@ function setup() {
 function plot() {
   salmon202.parse(editor.textarea.value);
   err = [];
+  var yn_periodic = salmon202.namelist.data.system.yn_periodic.val;
+
 
     // err = []; warn = [];
     if (salmon202.error.length > 0) {
@@ -59,7 +61,7 @@ function plot() {
       crystal3d.vec_a3.z = salmon202.vec_a3.z;
       
       crystal3d.atom_data = salmon202.atom_data;
-      crystal3d.plot(false);
+      crystal3d.plot((yn_periodic != 'y'));
   
     }
     editor.mark([], err);

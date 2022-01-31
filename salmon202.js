@@ -343,7 +343,7 @@ class SALMON202 {
         this.warning = this.namelist.warning;
         if (this.namelist.error.length > 0) return;
 
-        // ベクトル計算
+        // 単位系の計算
         if (this.namelist.data.units.unit_system.val == "A_eV_fs") {
             this.unit_length = 0.52917721067;
             this.unit_time = 0.02418884326505;
@@ -351,23 +351,29 @@ class SALMON202 {
             this.unit_length = 1.0;
             this.unit_time = 1.0;
         }
-
+        // 並進ベクトル計算
         this.vec_a1 = {};
         this.vec_a2 = {};
         this.vec_a3 = {};
         var system = this.namelist.data.system;
+        var rgrid = this.namelist.data.rgrid;
         var f = 1.0 / this.unit_length;
-        if (this._is_non_orthogonal()) {
-            this.vec_a1.x = system.al_vec1.val[1] * f;
-            this.vec_a1.y = system.al_vec1.val[2] * f;
-            this.vec_a1.z = system.al_vec1.val[3] * f;
-            this.vec_a2.x = system.al_vec2.val[1] * f;
-            this.vec_a2.y = system.al_vec2.val[2] * f;
-            this.vec_a2.z = system.al_vec2.val[3] * f;
-            this.vec_a3.x = system.al_vec3.val[1] * f;
-            this.vec_a3.y = system.al_vec3.val[2] * f;
-            this.vec_a3.z = system.al_vec3.val[3] * f;
-        } else {
+        // if (this._is_non_orthogonal()) {
+        //     this.vec_a1.x = system.al_vec1.val[1] * f;
+        //     this.vec_a1.y = system.al_vec1.val[2] * f;
+        //     this.vec_a1.z = system.al_vec1.val[3] * f;
+        //     this.vec_a2.x = system.al_vec2.val[1] * f;
+        //     this.vec_a2.y = system.al_vec2.val[2] * f;
+        //     this.vec_a2.z = system.al_vec2.val[3] * f;
+        //     this.vec_a3.x = system.al_vec3.val[1] * f;
+        //     this.vec_a3.y = system.al_vec3.val[2] * f;
+        //     this.vec_a3.z = system.al_vec3.val[3] * f;
+        // } else {
+            if (rgrid.dl.val[1] > 0) {
+                system.al.val[1] = rgrid.num_rgrid.val[1] * rgrid.dl.val[1];
+                system.al.val[2] = rgrid.num_rgrid.val[2] * rgrid.dl.val[2];
+                system.al.val[3] = rgrid.num_rgrid.val[3] * rgrid.dl.val[3];
+            }
             this.vec_a1.x = system.al.val[1] * f;
             this.vec_a1.y = 0.0;
             this.vec_a1.z = 0.0;
@@ -377,31 +383,32 @@ class SALMON202 {
             this.vec_a3.x = 0.0;
             this.vec_a3.y = 0.0;
             this.vec_a3.z = system.al.val[3] * f;
-        }
+        // }
 
         // 原子座標データを読み込む
         this.atom_data = this._read_atomic_coor(inputfile)
         console.log(this.atom_data);
     }
 
-    _is_non_orthogonal() {
-        var flag = false;
-        var tmp = [
-            this.namelist.data.system.al_vec1.val,
-            this.namelist.data.system.al_vec2.val,
-            this.namelist.data.system.al_vec3.val
-        ];
-        for (var i in tmp)
-            for (var j in tmp[i])
-                if (tmp[i][j] != 0) flag = true
-        return flag;
-    }
+    // _is_non_orthogonal() {
+    //     var flag = false;
+    //     var tmp = [
+    //         this.namelist.data.system.al_vec1.val,
+    //         this.namelist.data.system.al_vec2.val,
+    //         this.namelist.data.system.al_vec3.val
+    //     ];
+    //     for (var i in tmp)
+    //         for (var j in tmp[i])
+    //             if (tmp[i][j] != 0) flag = true
+    //     return flag;
+    // }
 
     _read_atomic_coor(inputfile) {
         // Parse atomic coordinate
 
         var buf = []
         var flag = false;
+        var reduced = false;
         var line = inputfile.split(/\r?\n/);
         for(var i=0; i<line.length; i++) {
             var str = line[i];
@@ -409,9 +416,12 @@ class SALMON202 {
             str = str.replace(/\s*(!.*)?$/, "");
             if (! str) continue;
 
-            if (str.match(/^&atomic(_red)?_coor$/i)) {
-                flag = true;
-                continue;
+            if (str.match(/^&atomic_red_coor$/i)) {
+                flag = true; reduced = true; continue;
+            }
+
+            if (str.match(/^&atomic_coor$/i)) {
+                flag = true; reduced = false; continue;
             }
 
             if (! flag) continue;
@@ -428,6 +438,11 @@ class SALMON202 {
             var t1 = this._parseFortranFloat(tmp[1]);
             var t2 = this._parseFortranFloat(tmp[2]);
             var t3 = this._parseFortranFloat(tmp[3]);
+            if (reduced == false) {
+                t1 = t1 / this.namelist.data.system.al.val[1];
+                t2 = t2 / this.namelist.data.system.al.val[2];
+                t3 = t3 / this.namelist.data.system.al.val[3];
+            }
             var ik = parseInt(tmp[4]);
             if (isNaN(t1) || isNaN(t2) || isNaN(t3) || isNaN(ik)) {
                 this.error.push({lineno:i+1, msg:"invalid numeric format"});

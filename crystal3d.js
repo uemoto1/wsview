@@ -133,6 +133,7 @@ class Crystal3D {
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);
         // 基準位置計算
+        console.log(origin_center)
         const o1 = origin_center ? 0 : -0.5*n1;
         const o2 = origin_center ? 0 : -0.5*n2;
         const o3 = origin_center ? 0 : -0.5*n3;
@@ -183,7 +184,7 @@ class Crystal3D {
                 // g := (ri + rj) / 2
                 var g = new THREE.Vector3();
                 g.addVectors(ri, rj).multiplyScalar(0.5);
-                const geometry = new THREE.CylinderGeometry(0.2, 0.2, d.length()-2, 8);
+                const geometry = new THREE.CylinderGeometry(0.1, 0.1, d.length()-2, 8);
                 const cylinder = new THREE.Mesh(geometry, this.bond_material);
                 cylinder.position.copy(g)
                 cylinder.quaternion.setFromUnitVectors(this.ey, d.normalize());
