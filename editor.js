@@ -42,6 +42,12 @@ class Editor {
             }
         }
     }
+
+    jump(l) {
+        var tmp = this.lineno.children;
+        if (1 <= l && l <= tmp.length)
+            this.textarea.scrollTo(0, tmp[l-1].offsetTop);
+    }
 }
 
 

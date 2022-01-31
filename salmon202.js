@@ -387,7 +387,12 @@ class SALMON202 {
 
         // 原子座標データを読み込む
         this.atom_data = this._read_atomic_coor(inputfile)
-        console.log(this.atom_data);
+
+        // 原子種別リストを作成
+        this.izatom = [];
+        for(var i=1; i<=this.namelist.data.system.nelem.val; i++)
+            this.izatom.push(this.namelist.data.pseudo.izatom.val[i]);
+
     }
 
     // _is_non_orthogonal() {

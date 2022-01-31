@@ -14,6 +14,7 @@ panelEditor = document.getElementById("panelEditor")
 plotCrystal = document.getElementById("plotCrystal")
 plotWaveform = document.getElementById("plotWaveform")
 btnPlot = document.getElementById("btnPlot");
+boxElement = document.getElementById("boxElement");
 
 
 // エディタ画面を初期化
@@ -26,6 +27,7 @@ var crystal3d = new Crystal3D(plotCrystal);
 
 function setup() {
     editor.textarea.value = salmon202_sample;
+    plot();
 }
 
 function plot() {
@@ -47,8 +49,10 @@ function plot() {
         crystal3d.redraw();
 
       }
+      editor.mark([], err);
+    if (err.length > 0)
+      editor.jump(err[0]);
       alert(msg);
-
     } else {
       crystal3d.vec_a1.x = salmon202.vec_a1.x;
       crystal3d.vec_a1.y = salmon202.vec_a1.y;
@@ -59,12 +63,20 @@ function plot() {
       crystal3d.vec_a3.x = salmon202.vec_a3.x;
       crystal3d.vec_a3.y = salmon202.vec_a3.y;
       crystal3d.vec_a3.z = salmon202.vec_a3.z;
-      
+
       crystal3d.atom_data = salmon202.atom_data;
       crystal3d.plot((yn_periodic != 'y'));
-  
+
+      var tmp = ``;
+      for (var i in salmon202.izatom) {
+        var iz = salmon202.izatom[i];
+        var symbol = atom_symbol_table[iz];
+        var color = atom_color_table[iz];
+        tmp += "<span style='background-color:#" + color +";'>" + symbol + "</span>";
+      }
+      boxElement.innerHTML = tmp;
+
     }
-    editor.mark([], err);
 
 
 

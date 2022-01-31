@@ -1,0 +1,17 @@
+#boxAxis span {
+    padding: 4px;
+    margin: 2px;
+    border: solid;
+    border-width: 1px;
+    /* border-color: black; */
+    display:inline-block;
+}
+
+#boxElement span {
+    padding: 4px;
+    margin: 2px;
+    border: solid;
+    border-width: 1px;
+    /* border-color: black; */
+    display:inline-block;
+}
