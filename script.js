@@ -19,7 +19,6 @@ boxElement = document.getElementById("boxElement");
 
 // エディタ画面を初期化
 var editor = new Editor(panelEditor);
-editor.textarea.onscroll = function(){editor.scroll()};
 
 var salmon202 = new SALMON202;
 

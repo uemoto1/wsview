@@ -18,11 +18,13 @@ class Editor {
         this.parent.appendChild(this.lineno);
         this.parent.appendChild(this.textarea);
         this.resize();
+
+        // Set event lister
+        this.textarea.addEventListener('scroll', (e)=>{
+            this.lineno.style.top = (-editor.textarea.scrollTop) + "px";
+        });
     }
 
-    scroll () {
-        this.lineno.style.top = (-editor.textarea.scrollTop) + "px";
-    }
 
     resize() {
         this.textarea.style.left = this.lineno.offsetWidth + "px";
