@@ -133,7 +133,6 @@ class Crystal3D {
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);
         // 基準位置計算
-        console.log(origin_center)
         const o1 = origin_center ? 0 : -0.5*n1;
         const o2 = origin_center ? 0 : -0.5*n2;
         const o3 = origin_center ? 0 : -0.5*n3;
@@ -172,7 +171,24 @@ class Crystal3D {
                 }
             }
         }
+        //  結合軸の作成
+        this.plot_bond()
+        // 格子の作成        
+        this.plot_cell()
+        // スケーリング調整
+        // （表示領域サイズの見積もり）
+        const lx = n1*Math.abs(a1.x) + n2*Math.abs(a2.x) + n3*Math.abs(a3.x);
+        const ly = n1*Math.abs(a1.y) + n2*Math.abs(a2.y) + n3*Math.abs(a3.y);
+        const lz = n1*Math.abs(a1.z) + n2*Math.abs(a2.z) + n3*Math.abs(a3.z);
+        const l = Math.max(lx, ly, lz);
+        this.model.scale.set(1/l,1/l,1/l)
+        // 描画
+        this.redraw();
+    }
+
+    plot_bond() {
         // 結合軸の作成
+        this.bond.clear();
         for(var i=0; i<this.atom.children.length; i++) {
             const ri = this.atom.children[i].position;
             for(var j=0; j<i; j++) {
@@ -191,8 +207,11 @@ class Crystal3D {
                 this.bond.add(cylinder);
             }
         }
-        // 格子の作成        
-        const vdir = [a1, a2, a3]
+    }
+
+    plot_cell() {
+        this.cell.clear()
+        const vdir = [this.vec_a1, this.vec_a2, this.vec_a3];
         for(var i=0; i<3; i++) {
             const vi = vdir[i];
             const vj1 = vdir[(i+1) % 3];
@@ -215,15 +234,6 @@ class Crystal3D {
                 }
             }
         }
-        // スケーリング調整
-        // （表示領域サイズの見積もり）
-        const lx = n1*Math.abs(a1.x) + n2*Math.abs(a2.x) + n3*Math.abs(a3.x);
-        const ly = n1*Math.abs(a1.y) + n2*Math.abs(a2.y) + n3*Math.abs(a3.y);
-        const lz = n1*Math.abs(a1.z) + n2*Math.abs(a2.z) + n3*Math.abs(a3.z);
-        const l = Math.max(lx, ly, lz);
-        this.model.scale.set(1/l,1/l,1/l)
-        // 描画
-        this.redraw();
     }
 
 
