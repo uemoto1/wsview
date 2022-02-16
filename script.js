@@ -40,9 +40,9 @@ function plot() {
       msg = "";
       for (var i in salmon202.error) {
         var tmp = salmon202.error[i];
-        if (tmp.lineno != undefined) {
-          err.push(tmp.lineno);
-          msg += "Line " + tmp.lineno + ":" + tmp.msg + "!\n";
+        if (tmp.lineNum != undefined) {
+          err.push(tmp.lineNum);
+          msg += "Line " + tmp.lineNum + ":" + tmp.msg + "!\n";
         }
         crystal3d.clear();
         crystal3d.redraw();
@@ -82,7 +82,7 @@ function plot() {
 
 
     // for (var tmp in nml.warning)
-    // warn.push(nml.warn[tmp].lineno);
+    // warn.push(nml.warn[tmp].lineNum);
 
     // console.log(err,warn);
 
@@ -95,10 +95,9 @@ function resize() {
     panelViewer.style.height = (window.innerHeight - panelViewer.offsetTop - panelFooter.offsetHeight) + "px";
     panelEditor.style.height = (window.innerHeight - panelEditor.offsetTop - panelFooter.offsetHeight - 8) + "px";
 
-    plotCrystal.style.height = (panelViewer.clientHeight * 0.75) + "px";
     plotCrystal.style.width = (panelViewer.clientWidth) + "px";
+    plotCrystal.style.height = (panelViewer.clientHeight * 0.75) + "px";
     plotWaveform.style.width = (panelViewer.clientWidth) + "px";
-    plotWaveform.style.height = (panelViewer.clientHeight * 0.25) + "px";
     plotWaveform.style.height = (panelViewer.clientHeight * 0.25) + "px";
     editor.resize();
     crystal3d.redraw();

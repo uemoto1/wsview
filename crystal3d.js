@@ -266,6 +266,8 @@ class Crystal3D {
     }
 
     select(x, y) {
+        console.log(x);
+        console.log(y);
         const vx = +(x - this.width * 0.5) / this.unit;
         const vy = -(y - this.height * 0.5) / this.unit;
         const v = new THREE.Vector2(vx, vy);

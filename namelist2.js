@@ -35,11 +35,11 @@ class Namelist {
             if (tmp) {
                 // 前回のグループがまだ閉じていない場合
                 if (group)
-                    err.push({lineno:i+1, msg:"previous group is not closed!"});
+                    err.push({lineNum:i+1, msg:"previous group is not closed!"});
                 group = tmp[1].toLowerCase();
                 // 未定義のグループ名の場合
                 if (this._isUndefinedGroup(group))
-                    warn.push({lineno:i+1, msg:"group name is invalid!"});
+                    warn.push({lineNum:i+1, msg:"group name is invalid!"});
                 continue;
             }
 
@@ -48,7 +48,7 @@ class Namelist {
             if (tmp) {
                 // グループがまだ閉じていない場合
                 if (! group)
-                    err.push({lineno:i+1, msg:"group is not opened!"});
+                    err.push({lineNum:i+1, msg:"group is not opened!"});
                 group = "";
                 continue;
             }
@@ -61,7 +61,7 @@ class Namelist {
                 var title = tmp[1].toLowerCase();
 
                 if (! ((group in this.data) && (title in this.data[group]))) {
-                    warn.push({lineno:i+1, msg:"undefined variable name or group!"});
+                    warn.push({lineNum:i+1, msg:"undefined variable name or group!"});
                     continue;
                 }
 
@@ -69,12 +69,12 @@ class Namelist {
                 var values = tmp[3];
                 var err_tmp = this._assign(group, title, indices, values);
                 if (err_tmp)
-                    err.push({lineno:i+1, msg:err_tmp});
+                    err.push({lineNum:i+1, msg:err_tmp});
 
                 continue;
             }
 
-            err.push({lineno:i+1, msg:"invalid syntax!"});
+            err.push({lineNum:i+1, msg:"invalid syntax!"});
         }
 
         this.error = err;
