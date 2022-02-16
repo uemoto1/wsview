@@ -22,7 +22,7 @@ class Namelist {
         
         // エラー出力関数
         function write_err(x) {
-            this.error.push({lineno:i+1, msg:x});
+            this.error.push({lineNum:i+1, msg:x});
         }
 
         // 読み込み開始

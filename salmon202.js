@@ -436,7 +436,7 @@ class SALMON202 {
             // 座標データの読み込み
             var tmp = str.split(/\s+/);
             if (tmp.length != 5) {
-                this.error.push({lineno:i+1, msg:"invalid coordinate format"});
+                this.error.push({lineNum:i+1, msg:"invalid coordinate format"});
                 continue;
             }
             var e = tmp[0];
@@ -450,14 +450,14 @@ class SALMON202 {
             }
             var ik = parseInt(tmp[4]);
             if (isNaN(t1) || isNaN(t2) || isNaN(t3) || isNaN(ik)) {
-                this.error.push({lineno:i+1, msg:"invalid numeric format"});
+                this.error.push({lineNum:i+1, msg:"invalid numeric format"});
                 continue;
             }
             if (! (1 <= ik && ik <= this.namelist.data.system.nelem.val)) {
-                this.error.push({lineno:i+1, msg:"undefined element index"});
+                this.error.push({lineNum:i+1, msg:"undefined element index"});
             }
             var iz = this.namelist.data.pseudo.izatom.val[ik];
-            buf.push({t1:t1, t2:t2, t3:t3, iz:iz, lineno:(i+1)});
+            buf.push({t1:t1, t2:t2, t3:t3, iz:iz, lineNum:(i+1)});
 
         }
         return buf;

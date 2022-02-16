@@ -133,7 +133,6 @@ class Crystal3D {
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);
         // 基準位置計算
-        console.log(origin_center)
         const o1 = origin_center ? 0 : -0.5*n1;
         const o2 = origin_center ? 0 : -0.5*n2;
         const o3 = origin_center ? 0 : -0.5*n3;
@@ -256,6 +255,8 @@ class Crystal3D {
     }
 
     select(x, y) {
+        console.log(x);
+        console.log(y);
         const vx = +(x - this.width * 0.5) / this.unit;
         const vy = -(y - this.height * 0.5) / this.unit;
         const v = new THREE.Vector2(vx, vy);
