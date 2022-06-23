@@ -1,11 +1,11 @@
-// SALMON v 2.0.2 principal input parameters
-salmon202_ignore = [
+// SALMON v 2.1.0 principal input parameters
+salmon210_ignore = [
     'opt', 'md', 'poisson', 'band',
     'singlescale', 'maxwell', 'jellium',
     'code', 'atomic_red_coor', 'atomic_coor'
 ];
 
-salmon202_namelist = {
+salmon210_namelist = {
     'calculation': {
         'theory': {type:'character(32)', default_val:'tddft'},
         'yn_md': {type:'character(1)'},
@@ -200,10 +200,10 @@ salmon202_namelist = {
 
 
 
-salmon202_sample = `!########################################################################################!
+salmon210_sample = `!########################################################################################!
 ! Excercise 06: Electron dynamics in crystalline silicon under a pulsed electric field   !
 !----------------------------------------------------------------------------------------!
-! * The detail of this excercise is expained in our manual(see chapter: 'Exercises').    !
+! * The detail of this excercise is explained in our manual(see chapter: 'Exercises').   !
 !   The manual can be obtained from: https://salmon-tddft.jp/documents.html              !
 ! * Input format consists of group of keywords like:                                     !
 !     &group                                                                             !
@@ -233,16 +233,16 @@ salmon202_sample = `!###########################################################
 
 &units
   !units used in input and output files
-  unit_system = 'a.u.'
+  unit_system = 'A_eV_fs'
 /
 
 &system
   !periodic boundary condition
   yn_periodic = 'y'
-
+  
   !grid box size(x,y,z)
-  al(1:3) = 10.26d0, 10.26d0, 10.26d0
-
+  al(1:3) = 5.43d0, 5.43d0, 5.43d0
+  
   !number of elements, atoms, electrons and states(bands)
   nelem  = 1
   natom  = 8
@@ -253,10 +253,10 @@ salmon202_sample = `!###########################################################
 &pseudo
   !name of input pseudo potential file
   file_pseudo(1) = './Si_rps.dat'
-
+  
   !atomic number of element
   izatom(1) = 14
-
+  
   !angular momentum of pseudopotential that will be treated as local
   lloc_ps(1) = 2
   !--- Caution -------------------------------------------!
@@ -281,29 +281,35 @@ salmon202_sample = `!###########################################################
 
 &tgrid
   !time step size and number of time grids(steps)
-  dt = 0.08d0
+  dt = 0.002d0
   nt = 6000
 /
 
 &emfield
   !envelope shape of the incident pulse('Acos2': cos^2 type envelope for vector potential)
   ae_shape1 = 'Acos2'
-
+  
   !peak intensity(W/cm^2) of the incident pulse
-  I_wcm2_1 = 5.0d11
-
+  I_wcm2_1 = 1.0d12
+  
   !duration of the incident pulse
-  tw1 = 441.195136248d0
-
+  tw1 = 10.672d0
+  
   !mean photon energy(average frequency multiplied by the Planck constant) of the incident pulse
-  omega1 = 0.05696145187d0
-
+  omega1 = 1.55d0
+  
   !polarization unit vector(real part) for the incident pulse(x,y,z)
   epdir_re1(1:3) = 0.0d0, 0.0d0, 1.0d0
   !--- Caution ---------------------------------------------------------!
-  ! Defenition of the incident pulse is wrriten in:                     !
+  ! Definition of the incident pulse is written in:                     !
   ! https://www.sciencedirect.com/science/article/pii/S0010465518303412 !
   !---------------------------------------------------------------------!
+/
+
+&analysis
+  !energy grid size and number of energy grids for output files
+  de      = 0.01d0
+  nenergy = 3000
 /
 
 &atomic_red_coor
@@ -320,17 +326,18 @@ salmon202_sample = `!###########################################################
   ! 'symbol' x y z index(correspond to that of pseudo potential) !
   !--------------------------------------------------------------!
 /
+
 `;
 
 
 
-class SALMON202 {
+class SALMON210 {
 
 
 
     constructor() {
-        this.namelist = new Namelist(salmon202_namelist);
-        this.namelist.ignore = salmon202_ignore;
+        this.namelist = new Namelist(salmon210_namelist);
+        this.namelist.ignore = salmon210_ignore;
         this.error = [];
         this.warning = [];
     }
@@ -338,6 +345,7 @@ class SALMON202 {
     parse(inputfile) {
 
         this.namelist.parse(inputfile);
+
         // Namelist読み込み時にエラーが検出された場合は終了する
         this.error = this.namelist.error;
         this.warning = this.namelist.warning;
@@ -347,9 +355,13 @@ class SALMON202 {
         if (this.namelist.data.units.unit_system.val == "A_eV_fs") {
             this.unit_length = 0.52917721067;
             this.unit_time = 0.02418884326505;
+            this.unit_efield = 51.4220674763;
+            this.unit_energy = 27.211386245988034;
         } else {
             this.unit_length = 1.0;
             this.unit_time = 1.0;
+            this.unit_efield = 1.0;
+            this.unit_energy = 1.0;
         }
         // 並進ベクトル計算
         this.vec_a1 = {};
@@ -358,17 +370,17 @@ class SALMON202 {
         var system = this.namelist.data.system;
         var rgrid = this.namelist.data.rgrid;
         var f = 1.0 / this.unit_length;
-        // if (this._is_non_orthogonal()) {
-        //     this.vec_a1.x = system.al_vec1.val[1] * f;
-        //     this.vec_a1.y = system.al_vec1.val[2] * f;
-        //     this.vec_a1.z = system.al_vec1.val[3] * f;
-        //     this.vec_a2.x = system.al_vec2.val[1] * f;
-        //     this.vec_a2.y = system.al_vec2.val[2] * f;
-        //     this.vec_a2.z = system.al_vec2.val[3] * f;
-        //     this.vec_a3.x = system.al_vec3.val[1] * f;
-        //     this.vec_a3.y = system.al_vec3.val[2] * f;
-        //     this.vec_a3.z = system.al_vec3.val[3] * f;
-        // } else {
+        if (this._is_non_orthogonal()) {
+            this.vec_a1.x = system.al_vec1.val[1] * f;
+            this.vec_a1.y = system.al_vec1.val[2] * f;
+            this.vec_a1.z = system.al_vec1.val[3] * f;
+            this.vec_a2.x = system.al_vec2.val[1] * f;
+            this.vec_a2.y = system.al_vec2.val[2] * f;
+            this.vec_a2.z = system.al_vec2.val[3] * f;
+            this.vec_a3.x = system.al_vec3.val[1] * f;
+            this.vec_a3.y = system.al_vec3.val[2] * f;
+            this.vec_a3.z = system.al_vec3.val[3] * f;
+        } else {
             if (rgrid.dl.val[1] > 0) {
                 system.al.val[1] = rgrid.num_rgrid.val[1] * rgrid.dl.val[1];
                 system.al.val[2] = rgrid.num_rgrid.val[2] * rgrid.dl.val[2];
@@ -383,7 +395,7 @@ class SALMON202 {
             this.vec_a3.x = 0.0;
             this.vec_a3.y = 0.0;
             this.vec_a3.z = system.al.val[3] * f;
-        // }
+        }
 
         // 原子座標データを読み込む
         this.atom_data = this._read_atomic_coor(inputfile)
@@ -393,20 +405,43 @@ class SALMON202 {
         for(var i=1; i<=this.namelist.data.system.nelem.val; i++)
             this.izatom.push(this.namelist.data.pseudo.izatom.val[i]);
 
+        // 波束のパラメータ
+        this.e_impulse = this.namelist.data.emfield.e_impulse.val;
+        this.ae_shape1 = this.namelist.data.emfield.ae_shape1.val;
+        this.e_amplitude1 = this.namelist.data.emfield.e_amplitude1.val / this.unit_efield;
+        this.i_wcm2_1 = this.namelist.data.emfield.i_wcm2_1.val;
+        this.tw1 = this.namelist.data.emfield.tw1.val / this.unit_time;
+        this.omega1 = this.namelist.data.emfield.omega1.val / this.unit_energy;
+        this.epdir_re1 = this.namelist.data.emfield.epdir_re1.val;
+        this.epdir_im1 = this.namelist.data.emfield.epdir_im1.val;
+        this.phi_cep1 = this.namelist.data.emfield.phi_cep1.val;
+        this.ae_shape2 = this.namelist.data.emfield.ae_shape2.val;
+        this.e_amplitude2 = this.namelist.data.emfield.e_amplitude2.val / this.unit_efield;
+        this.i_wcm2_2 = this.namelist.data.emfield.i_wcm2_2.val;
+        this.tw2 = this.namelist.data.emfield.tw2.val / this.unit_time;
+        this.omega2 = this.namelist.data.emfield.omega2.val / this.unit_energy;
+        this.epdir_re2 = this.namelist.data.emfield.epdir_re2.val;
+        this.epdir_im2 = this.namelist.data.emfield.epdir_im2.val;
+        this.phi_cep2 = this.namelist.data.emfield.phi_cep2.val;
+        this.t1_t2 = this.namelist.data.emfield.t1_t2.val / this.unit_time;
+        this.t1_start = this.namelist.data.emfield.t1_start.val / this.unit_time;
+        this.dt = this.namelist.data.tgrid.dt.val / this.unit_time;
+        this.nt = this.namelist.data.tgrid.nt.val;
+        console.log(this.dt*this.nt);
     }
 
-    // _is_non_orthogonal() {
-    //     var flag = false;
-    //     var tmp = [
-    //         this.namelist.data.system.al_vec1.val,
-    //         this.namelist.data.system.al_vec2.val,
-    //         this.namelist.data.system.al_vec3.val
-    //     ];
-    //     for (var i in tmp)
-    //         for (var j in tmp[i])
-    //             if (tmp[i][j] != 0) flag = true
-    //     return flag;
-    // }
+    _is_non_orthogonal() {
+        var flag = false;
+        var tmp = [
+            this.namelist.data.system.al_vec1.val,
+            this.namelist.data.system.al_vec2.val,
+            this.namelist.data.system.al_vec3.val
+        ];
+        for (var i in tmp)
+            for (var j in tmp[i])
+                if (tmp[i][j] != 0) flag = true
+        return flag;
+    }
 
     _read_atomic_coor(inputfile) {
         // Parse atomic coordinate

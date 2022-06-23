@@ -26,6 +26,12 @@ class Waveplot {
         this.phi_cep2 = 0.0;
         this.t1_t2 = 0.0;
         this.t1_start = 0.0; 
+
+        this.nt = 0;
+        this.dt = 0.0;
+
+        this.Ac = 0.0
+        this.E = 0.0
     }
 
 /*
@@ -309,9 +315,9 @@ End Subroutine calc_Ac_ext_t
             for (i=is; i<=ie; i++) {
                 t=t0+i*delta_t
                 if (0 <= t) {
-                    Ac_ext_t[1][i] = epdir_re1[1]*e_impulse
-                    Ac_ext_t[2][i] = epdir_re1[2]*e_impulse
-                    Ac_ext_t[3][i] = epdir_re1[3]*e_impulse
+                    Ac_ext_t[1][i-is] = epdir_re1[1]*e_impulse
+                    Ac_ext_t[2][i-is] = epdir_re1[2]*e_impulse
+                    Ac_ext_t[3][i-is] = epdir_re1[3]*e_impulse
                 }
             }
             break;
@@ -323,15 +329,6 @@ End Subroutine calc_Ac_ext_t
         case 'Acos4':
         case 'Acos6':
         case 'Acos8':
-            // select case(ae_shape1)
-            // case('Acos2'); npower = 2
-            // case('Acos3'); npower = 3
-            // case('Acos4'); npower = 4
-            // case('Acos6'); npower = 6
-            // case('Acos8'); npower = 8
-            // case default
-            //   stop 'Error in init_rt.f90'
-            // end select
             switch (ae_shape1) {
                 case 'Acos2': npower = 2; break;
                 case 'Acos3': npower = 3; break;
@@ -351,7 +348,6 @@ End Subroutine calc_Ac_ext_t
             //   end if
             // end do
             // T1_T2_tmp = T1_T2 + t1_start
-
             for (i=is; i<ie; i++) {
                 t=t0+i*delta_t;
                 tt = t - 0.5*tw1 - t1_start;
@@ -359,7 +355,7 @@ End Subroutine calc_Ac_ext_t
                     var f_env = -f0_1/omega1*(Math.cos(pi*tt/tw1))**npower
                     var theta = (omega1*tt+phi_CEP1*2*pi)
                     for(var k=1; k<=3; k++)
-                        Ac_ext_t[k][i] = f_env * (
+                        Ac_ext_t[k][i-is] = f_env * (
                             epdir_re1[k] * Math.sin(theta)
                             + epdir_im1[k] * Math.cos(theta)
                         );
@@ -389,8 +385,6 @@ End Subroutine calc_Ac_ext_t
             //       +tw1*omega1*sin(2d0*pi*tt/tw1)*sin(omega1*tt)))
             //   end if
             // end do
-
-
             
             // for (i=is; i<ie; i++) {
             //     t=t0+i*delta_t;
@@ -403,13 +397,23 @@ End Subroutine calc_Ac_ext_t
             //     }
             // }
             
-
-
         }
         
 
-        return Ac_ext_t
+        var E_ext_t = {
+          1: new Float64Array(ie-is+1),
+          2: new Float64Array(ie-is+1),
+          3: new Float64Array(ie-is+1)
+      };
 
+      
+      for (k=1; k<=3; k++) {
+        for (i=is+1; i<ie; i++) {
+          E_ext_t[k][i-is] = -( Ac_ext_t[k][i-is] - Ac_ext_t[k][i-1-is] ) / delta_t;
+        } 
+      }
+      console.log(E_ext_t);
+      return [Ac_ext_t, E_ext_t];
 
     }
 
@@ -419,19 +423,89 @@ End Subroutine calc_Ac_ext_t
 
     plot() {
         // ローカル変数
-        var height = this.canvas.offsetHeight;
-        var width = this.canvas.offsetWidth;
-        var ctx = this.canvas.getContext("2d");
+
+        var ret= this.calc_Ac_ext_t(0.0, this.dt, 0, this.nt);
+        this.Ac =ret[0]
+        this.E = ret[1]
 
 
-        var Ac = this.calc_Ac_ext_t(0.0, 1.0, 0, 500);
-        var acmax = Math.max.apply(null, Ac[3])
-        var acmin = Math.min.apply(null, Ac[3])
+        this.emax = Math.max(
+          Math.max.apply(null, this.E[1]),
+          -Math.min.apply(null, this.E[1]),
+          Math.max.apply(null, this.E[2]),
+          -Math.min.apply(null, this.E[2]),
+          Math.max.apply(null, this.E[3]),
+          -Math.min.apply(null, this.E[3]),
+        )
+
+        this.update();
+
         
+    }
 
-        for (var i=0; i<500; i++) {
-            var x = i * width / 500.0
-            var y = (Ac[3][i] - acmin) / (acmax - acmin) * height ;
+
+    update () {
+
+      this.canvas.width = this.canvas.offsetWidth;
+      this.canvas.height = this.canvas.offsetHeight;
+
+      var height = this.canvas.height;
+      var width = this.canvas.width;
+      var ctx = this.canvas.getContext("2d");
+
+      ctx.lineWidth = 2;
+      ctx.font = "10px Arial";
+
+      
+      ctx.clearRect(0, 0, width, height);
+      const au_fs = 0.024188843265857;
+      var t_fs = this.nt * this.dt * au_fs;
+      var tick = 1.0;
+      if ((5.0 <= t_fs) &&  (t_fs < 15.0)) {
+        tick = 2.0;
+      } else if ((t_fs < 40.0)) {
+        tick = 5.0;
+      } else if ((t_fs < 80.0)) {
+        tick = 10.0;
+      } else  {
+        tick = 20.0;
+      }
+      for (var i=0; i<t_fs/tick; i++) {
+        var x = width * i * tick / t_fs;
+        ctx.fillText(i*tick, x, height-10.0);
+      }
+      ctx.fillText("Time [fs]", width*0.5, height);
+
+      ctx.strokeStyle = "steelblue";
+
+
+      
+      ctx.beginPath();
+      ctx.moveTo(0, 5);
+      ctx.lineTo(10, 5);
+      ctx.strokeStyle = "steelblue";
+      ctx.stroke();
+      ctx.fillText("Ex", 15, 10);
+      ctx.beginPath();
+      ctx.moveTo(0, 15);
+      ctx.lineTo(10, 15);
+      ctx.strokeStyle = "orange";
+      ctx.stroke();
+      ctx.fillText("Ey", 15, 20);
+      ctx.beginPath();
+      ctx.moveTo(0, 25);
+      ctx.lineTo(10, 25);
+      ctx.strokeStyle = "green";
+      ctx.stroke();
+      ctx.fillText("Ez", 15, 30);
+
+
+
+
+      for (var k=1; k<=3; k++) {
+        for (var i=0; i<this.nt; i+=10) {
+            var x = i * width / this.nt
+            var y = (-this.E[k][i] + this.emax) / (2*this.emax) * (height-30.0) ;
             if (i == 0) {
                 ctx.beginPath();
                 ctx.moveTo(x, y);
@@ -439,10 +513,10 @@ End Subroutine calc_Ac_ext_t
                 ctx.lineTo(x, y);
             }
         }
-        ctx.strokeStyle = "blue"; 
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = {1:"steelblue", 2:"orange", 3:"green"}[k]; 
         ctx.stroke();
-
-
+      }
+      
     }
+
 }
