@@ -16,6 +16,10 @@ plotWaveform = document.getElementById("plotWaveform")
 btnPlot = document.getElementById("btnPlot");
 boxElement = document.getElementById("boxElement");
 
+selectN1 = document.getElementById("selectN1");
+selectN2 = document.getElementById("selectN2");
+selectN3 = document.getElementById("selectN3");
+selectBond = document.getElementById("selectBond");
 
 // エディタ画面を初期化
 const editor = ace.edit("panelEditor");
@@ -27,12 +31,22 @@ var crystal3d = new Crystal3D(plotCrystal);
 var waveplot = new Waveplot(plotWaveform);
 
 function setup() {
-    //editor.textarea.value = salmon210_sample;
-    //plot();
-    // editor.setTheme("ace/theme/twilight");
     editor.setValue(salmon210_sample);
     ace.config.setModuleUrl("ace/mode/salmon", "mode-salmon.js")
     editor.session.setMode("ace/mode/salmon");
+    editor.clearSelection();
+
+    // Set event Listener
+    btnPlot.onclick = plot;
+    selectN1.onchange = changeN;
+    selectN2.onchange = changeN;
+    selectN3.onchange = changeN;
+    selectBond.onchange = changeBond;
+
+    plotCrystal.onclick = selectAtom;
+
+    plot();
+    resize();
 }
 
 function plot() {
@@ -77,7 +91,7 @@ function plot() {
         var iz = salmon210.izatom[i];
         var symbol = atom_symbol_table[iz];
         var color = atom_color_table[iz];
-        tmp += "<span style='background-color:#" + color +";'>" + symbol + "</span>";
+        tmp += "<span class='rounded-pill' style='margin:4px;padding:16px;background-color:#" + color +";'>" + symbol + "</span>";
       }
       boxElement.innerHTML = tmp;
 
@@ -105,18 +119,7 @@ function plot() {
       waveplot.dt = salmon210.dt;
 
       waveplot.plot();
-
     }
-
-
-
-
-
-    // for (var tmp in nml.warning)
-    // warn.push(nml.warn[tmp].lineNum);
-
-    // console.log(err,warn);
-
 }
 
 function resize() {
@@ -132,7 +135,37 @@ function resize() {
     plotWaveform.style.height = (panelViewer.clientHeight * 0.25) + "px";
     //editor.resize();
     crystal3d.redraw();
+    editor.resize();
 }
+
+function changeN() {
+  crystal3d.ncell1 = (parseInt(selectN1.value));
+  crystal3d.ncell2 = (parseInt(selectN2.value));
+  crystal3d.ncell3 = (parseInt(selectN3.value));
+  plot();
+}
+
+function changeBond() {
+  crystal3d.bond_length = (parseInt(selectBond.value));
+  plot();
+}
+
+function selectAtom() {
+  var i = crystal3d.selected_index;
+  if (i >= 0) {
+    var iz = crystal3d.atom_data[i].iz;
+    var t1 = crystal3d.atom_data[i].t1;
+    var t2 = crystal3d.atom_data[i].t2;
+    var t3 = crystal3d.atom_data[i].t3;
+    var lineNum = crystal3d.atom_data[i].lineNum;
+    panelFooter.innerText = "Atom " + i + " Z=" + iz +" (" + t1 + ", " + t2 + ", " + t3 + ")";
+    // editor.selection.moveCursorToPosition({row: lineNum, col: 0});
+    // editor.selection.selectLine();
+    editor.gotoLine(lineNum, 0, true);
+  }
+}
+
+
 
 var resize_timer = undefined;
 window.onresize = function() {
@@ -140,8 +173,5 @@ window.onresize = function() {
     resize_timer = setTimeout(resize, 50);
 };
 
-btnPlot.onclick = plot;
-
+// Start main program...
 setup();
-
-resize();

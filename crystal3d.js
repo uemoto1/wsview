@@ -17,6 +17,7 @@ class Crystal3D {
         this.pbc3 = true; // 周期境界条件
         this.atom_data = []; // 原子座標関連変数
         this.atom_select = -1; // 選択された原子
+        this.bond_length = 4.5; // 最大原子間距離
         // プライベート変数
         // THREE.js レンダラー関連
         this.renderer = new THREE.WebGLRenderer({"canvas": this.canvas});
@@ -78,23 +79,34 @@ class Crystal3D {
         this.canvas.addEventListener('mousedown', (e)=>{
             this.drag_start(e.offsetX, e.offsetY);
         });
+        this.canvas.addEventListener('touchstart', (e)=>{
+            this.drag_start(e.touches[0].clientX, e.touches[0].clientY);
+        });
         // ドラッグ中
         this.canvas.addEventListener('mousemove', (e)=>{
-            if (e.buttons > 0) this.drag(e.offsetX, e.offsetY);
+            if (e.buttons > 0) 
+                this.drag(e.offsetX, e.offsetY);
+        });
+        this.canvas.addEventListener('touchmove', (e)=>{
+            this.drag(e.touches[0].clientX, e.touches[0].clientY);
         });
         // ドラッグ終了またはオブジェクト選択
         this.canvas.addEventListener('mouseup', (e)=>{
-            if (!this.flag_drag) this.select(e.offsetX, e.offsetY);
+            if (! this.flag_drag)
+                this.select(e.offsetX, e.offsetY);
         })
-
+        this.canvas.addEventListener('touchend', (e)=>{
+            if (! this.flag_drag)
+                this.select(e.touches[0].clientX, e.touches[0].clientY);
+        })
     }
 
 
     redraw(resize=true) {
         if (resize) {
             // 表示サイズ計算
-            this.width = this.canvas.offsetWidth;
-            this.height = this.canvas.offsetHeight;
+            this.width = parseFloat(this.canvas.clientWidth);
+            this.height = parseFloat(this.canvas.clientHeight);
             this.unit = 0.5 * Math.min(this.width, this.height);
             // カメラ設定変更
             this.camera.left = -0.5 * this.width / this.unit
@@ -196,7 +208,7 @@ class Crystal3D {
                 // d := rj - ri
                 var d = new THREE.Vector3();
                 d.subVectors(rj, ri);
-                if (d.length() > 5.0) continue;
+                if (d.length() > this.bond_length) continue;
                 // g := (ri + rj) / 2
                 var g = new THREE.Vector3();
                 g.addVectors(ri, rj).multiplyScalar(0.5);
@@ -250,26 +262,25 @@ class Crystal3D {
             this.flag_drag = false;
         } else {
             this.flag_drag = true;
-            const dx = +(x - this.xtmp) / this.unit;
-            const dy = -(y - this.ytmp) / this.unit;
+            const dx = +(x - this.xtmp) * (1.0 / this.unit);
+            const dy = -(y - this.ytmp) * (1.0 / this.unit);
             var d = new THREE.Vector3(dx, dy, 0.50);
             d.normalize();
             // 回転クオータにオンを計算
             var q = new THREE.Quaternion();
             q.setFromUnitVectors(this.ez, d);
             q.multiply(this.qtmp);
-            this.model.quaternion.copy(q);
-            this.axes.quaternion.copy(q);
+
+            this.model.quaternion.copy(q.normalize());
+            this.axes.quaternion.copy(q.normalize());
             // 再描画
             this.redraw(resize);
         }
     }
 
     select(x, y) {
-        console.log(x);
-        console.log(y);
-        const vx = +(x - this.width * 0.5) / this.unit;
-        const vy = -(y - this.height * 0.5) / this.unit;
+        const vx = +(x - this.width * 0.5) / this.width * 2;
+        const vy = -(y - this.height * 0.5) / this.height * 2;
         const v = new THREE.Vector2(vx, vy);
         this.raycaster.setFromCamera(v, this.camera);
         var intersects = this.raycaster.intersectObjects(this.atom.children);

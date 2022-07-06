@@ -312,16 +312,6 @@ End Subroutine calc_Ac_ext_t
             //     Ac_ext_t(3,i) = epdir_re1(3)*e_impulse
             //     end if
             // end do
-            for (i=is; i<=ie; i++) {
-                t=t0+i*delta_t
-                if (0 <= t) {
-                    Ac_ext_t[1][i-is] = epdir_re1[1]*e_impulse
-                    Ac_ext_t[2][i-is] = epdir_re1[2]*e_impulse
-                    Ac_ext_t[3][i-is] = epdir_re1[3]*e_impulse
-                }
-            }
-            break;
-
         
         // case('Acos2','Acos3','Acos4','Acos6','Acos8')
         case 'Acos2':
@@ -400,13 +390,129 @@ End Subroutine calc_Ac_ext_t
         }
         
 
-        var E_ext_t = {
-          1: new Float64Array(ie-is+1),
-          2: new Float64Array(ie-is+1),
-          3: new Float64Array(ie-is+1)
-      };
+
+      // ! Probe
+      // select case(ae_shape2)
+      // case('impulse')
+      switch(ae_shape2) {
+      case "impulse":
+        break;
+      //   do i=is, ie
+      //     t=t0+i*delta_t
+      //     tt = t - 0.5d0*tw1 - T1_T2_tmp
+      //     if(tt > 0d0)then
+      //       Ac_ext_t(1,i) = Ac_ext_t(1,i) + epdir_re2(1)*e_impulse
+      //       Ac_ext_t(2,i) = Ac_ext_t(2,i) + epdir_re2(2)*e_impulse
+      //       Ac_ext_t(3,i) = Ac_ext_t(3,i) + epdir_re2(3)*e_impulse
+      //     end if
+      //   end do
+        
+      // case('Acos2','Acos3','Acos4','Acos6','Acos8')
+      case 'Acos2':
+      case 'Acos3':
+      case 'Acos4':
+      case 'Acos6':
+      case 'Acos8':
+      //   select case(ae_shape2)
+      //   case('Acos2'); npower = 2
+      //   case('Acos3'); npower = 3
+      //   case('Acos4'); npower = 4
+      //   case('Acos6'); npower = 6
+      //   case('Acos8'); npower = 8
+      //   case default
+      //     stop 'Error in init_Ac.f90'
+      //   end select
+        switch(ae_shape2) {
+          case 'Acos2': npower = 2; break;
+          case 'Acos3': npower = 3; break;
+          case 'Acos4': npower = 4; break;
+          case 'Acos6': npower = 6; break;
+          case 'Acos8': npower = 8; break;
+        }
+    
+        //   do i=is, ie
+        //     t=t0+i*delta_t
+        //     tt = t - 0.5d0*tw1 - T1_T2_tmp
+        //     if (abs(tt)<0.5d0*tw2) then
+        //       Ac_ext_t(:,i)=Ac_ext_t(:,i) &
+        //         -f0_2/omega2*(cos(pi*tt/tw2))**npower &
+        //         *aimag( (epdir_re2(:) + zI*epdir_im2(:)) &
+        //         *exp(zI*(omega2*tt+phi_CEP2*2d0*pi))  &
+        //         )
+        //     end if
+        //   end do
+        for (i=is; i<ie; i++) {
+          t=t0+i*delta_t;
+          tt = t - 0.5*tw1 - T1_T2_tmp;
+          if (Math.abs(tt)<0.5*tw2) {
+              var f_env = -f0_2/omega2*(Math.cos(pi*tt/tw2))**npower
+              var theta = (omega2*tt+phi_CEP2*2*pi)
+              for(var k=1; k<=3; k++)
+                  Ac_ext_t[k][i-is] = Ac_ext_t[k][i-is] + f_env * (
+                      epdir_re2[k] * Math.sin(theta)
+                      + epdir_im2[k] * Math.cos(theta)
+                  );
+          }
+        }
+
+        break;
+      }
+    
+      // case('Ecos2')
+      
+      //   if(phi_CEP2 /= 0.75d0)then
+      //     stop "Error: phi_cep2 should be 0.75 when ae_shape2 is 'Ecos2'."
+      //   end if
+      //   if(sum(abs(epdir_im2(:)))>1.0d-8)then
+      //     stop "Error: ae_shape2 should be 'Acos2' when epdir_im2 is used."
+      //   end if
+    
+      //   do i=is, ie
+      //     t=t0+i*delta_t
+      //     tt = t - 0.5d0*tw1 - T1_T2_tmp
+      //     if (abs(tt)<0.5d0*tw2) then
+      //       Ac_ext_t(:,i)=Ac_ext_t(:,i) &
+      //         -epdir_re2(:)*f0_2/(8d0*pi**2*omega2 - 2d0*tw2**2*omega2**3) &
+      //         *( &
+      //         (-4d0*pi**2+tw2**2*omega2**2 + tw2**2*omega2**2*cos(2d0*pi*tt/tw2))*cos(omega2*tt) &
+      //         +2d0*pi*(2d0*pi*cos(tw2*omega2/2d0) &
+      //         +tw2*omega2*sin(2d0*pi*tt/tw2)*sin(omega2*tt)))
+      //     end if
+      //   end do
+    
+      // case('Esin2sin')
+          
+      //   stop "Esin2sin is not implemented"
+        
+      // case('Asin2cos')
+      
+      //     ! pulse shape : A(t)=f0/omega*sin(Pi t/T)**2 *cos (omega t+phi_CEP*2d0*pi) 
+      //   ! probe laser
+    
+      //   do i=is, ie
+      //     t=t0+i*delta_t
+      //     tt = t
+      //     if ( (tt-T1_T2_tmp>0d0) .and. (tt-T1_T2_tmp<tw2) ) then
+      //       Ac_ext_t(:,i) = Ac_ext_t(:,i) &
+      //         &-Epdir_re2(:)*f0_2/omega2*(sin(pi*(tt-T1_T2_tmp)/tw2))**2*cos(omega2*(tt-T1_T2_tmp)+phi_CEP2*2d0*pi)
+      //     endif
+      //   end do
+    
+      // case('input')
+      // case('Asin2_cw')
+      // case('none')
+      // case default
+      
+      //   stop "Invalid pulse_shape_2 parameter!"
+        
+      // end select
 
       
+      var E_ext_t = {
+        1: new Float64Array(ie-is+1),
+        2: new Float64Array(ie-is+1),
+        3: new Float64Array(ie-is+1)
+      };
       for (k=1; k<=3; k++) {
         for (i=is+1; i<ie; i++) {
           E_ext_t[k][i-is] = -( Ac_ext_t[k][i-is] - Ac_ext_t[k][i-1-is] ) / delta_t;
@@ -414,7 +520,6 @@ End Subroutine calc_Ac_ext_t
       }
       console.log(E_ext_t);
       return [Ac_ext_t, E_ext_t];
-
     }
 
 

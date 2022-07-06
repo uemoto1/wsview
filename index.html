@@ -6,16 +6,21 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.6.0/ace.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" ></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link  rel="stylesheet" type="text/css" href="style.css">
-<link  rel="stylesheet" type="text/css" href="editor.css">
+<!-- <link  rel="stylesheet" type="text/css" href="editor.css"> -->
 </head>
 <body >
 
-<nav class="navbar navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:darkblue;">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Web SALMON view [alpha]</span>
+        <span class="navbar-brand mb-0 h1">Web SALMON view [beta]</span>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal" href="#">About</a>
+            </li>
+        </ul>
     </div>
 </nav>
 
@@ -30,32 +35,131 @@
             <div id="panelEditor"></div>
         </div>
         <div class="col-sm-6" id="panelRight" style="background-color: #fff;">
-            <div class="row" id="panelControl" style="background-color: #fff;">
-                <p>
-                <span id="boxAxis">
-                    <span style="color:red;">a/X</span>
-                    <span style="color:green;">b/Y</span>
-                    <span style="color:blue;">c/Z</span>
-                </span>
-                <span id="boxElement"></span>
-                </p>
+            <div class="row" id="panelControl" >
+
+                <div class="w-100">
+                    <div class="row" style="background-color: #ccc;">
+                        <div class="col-auto" >
+                            <div class="input-group" style="background-color: #ccc;">
+                                <span class="input-group-text"># Cells</span>
+                                <select class="form-select" id="selectN1">
+                                    <option selected value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                                <select class="form-select" id="selectN2">
+                                    <option selected value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                                <select class="form-select" id="selectN3">
+                                    <option selected value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <span class="input-group-text">Bond</span>
+                                <select class="form-select" id="selectBond">
+                                    <option value="0.0">None</option>
+                                    <option value="1.0"> &lt; 1.0</option>
+                                    <option value="1.5"> &lt; 1.5</option>
+                                    <option value="2.0"> &lt; 2.0</option>
+                                    <option value="2.5"> &lt; 2.5</option>
+                                    <option value="3.0"> &lt; 3.0</option>
+                                    <option value="3.5"> &lt; 3.5</option>
+                                    <option value="4.0"> &lt; 4.0</option>
+                                    <option value="4.5"> &lt; 4.5</option>
+                                    <option value="5.0" selected> &lt; 5.0</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+
+                <div class="w-100"  style="background-color: #fff;">
+                    <p>
+                        <span id="boxAxis">
+                            <span style="color:red;">a</span>
+                            <span style="color:green;">b</span>
+                            <span style="color:blue;">c</span>
+                        </span>
+                        <span id="boxElement"></span>
+                    </p>
+                </div>
             </div>
             <div class="row" id="panelViewer" style="background-color: #111;">
                 <canvas id="plotCrystal" style="background-color: blue; padding: 0; "></canvas>
-                <canvas id="plotWaveform" style="background-color: #fff;"></canvas>
+                <canvas id="plotWaveform" style="background-color: #fff; padding: 12px; "></canvas>
             </div>
         </div>
     </div>
-    <div class="row"  id="panelFooter" style="background-color: #777;">
-        panelFooter
+    <div class="row"  id="panelFooter" style="background-color: #ccc; color: #000; font-size:small;">
+        <span>Source code: <a href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a> by M. Uemoto @ Kobe Univ.</span>
     </div>
 </div>
 
 
+
+
+<!-- Modal -->
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="aboutModalLabel">Web SALMON Viewer</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <p>
+        Version 20.7.7
+    </p>
+    <p>
+        A interactive visualization tool for SALMON (Scalable Ab-initio Light-Matter simulator for Optics and Nanoscience): a first-principles electron dynamics program.
+    </p>
+    <p>
+        Copyright(C) 2022 by M. Uemoto. 
+    </p>
+    <p>
+        <strong>External links:</strong>
+        <lu>
+            <li>Develop@github <a href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a></li>
+            <li>SALMON project <a href="https://salmon-tddft.jp/">https://salmon-tddft.jp/</a></li>
+            <li>OnoLab@Kobe Univ. <a href="https://www.lab.kobe-u.ac.jp/eng-ep4b">https://www.lab.kobe-u.ac.jp/eng-ep4b</a></li>
+        </lu>
+    </p>
+    <p>
+        <strong>Credits:</strong>
+        <lu>
+            <li><a href="https://getbootstrap.jp/">Bootstrap</a> The MIT License (MIT).
+            Copyright (c) 2011-2018 Twitter, Inc.
+            Copyright (c) 2011-2018 The Bootstrap Authors.</li>
+            <li><a href="https://threejs.org/">three.js</a> The MIT License (MIT).
+            Copyright (c) 2010-2022 three.js authors</li>
+            <li><a href="https://ace.c9.io/">Ace (Ajax.org Cloud9 Editor)</a> Copyright (c) 2010, Ajax.org B.V.
+            All rights reserved.
+            </li>
+        </lu>
+    </p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
 </body>
-<script type="application/javascript" src="namelist2.js?v=20220625"></script>
-<script type="application/javascript" src="salmon210.js?v=20220625"></script>
-<script type="application/javascript" src="crystal3d.js?v=20220625"></script>
-<script type="application/javascript" src="waveplot.js?v=20220625"></script>
-<script type="application/javascript" src="script.js?v=20220625"></script>
+<script type="application/javascript" src="namelist2.js?v=20220706"></script>
+<script type="application/javascript" src="salmon210.js?v=20220706"></script>
+<script type="application/javascript" src="crystal3d.js?v=20220706"></script>
+<script type="application/javascript" src="waveplot.js?v=20220706"></script>
+<script type="application/javascript" src="script.js?v=20220706"></script>
 </html>
