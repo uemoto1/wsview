@@ -14,12 +14,15 @@ panelEditor = document.getElementById("panelEditor")
 plotCrystal = document.getElementById("plotCrystal")
 plotWaveform = document.getElementById("plotWaveform")
 btnPlot = document.getElementById("btnPlot");
+btnCif = document.getElementById("btnCif");
 boxElement = document.getElementById("boxElement");
 
 selectN1 = document.getElementById("selectN1");
 selectN2 = document.getElementById("selectN2");
 selectN3 = document.getElementById("selectN3");
 selectBond = document.getElementById("selectBond");
+
+rangeZoom =  document.getElementById("rangeZoom");
 
 // エディタ画面を初期化
 const editor = ace.edit("panelEditor");
@@ -42,6 +45,7 @@ function setup() {
     selectN2.onchange = changeN;
     selectN3.onchange = changeN;
     selectBond.onchange = changeBond;
+    rangeZoom.onchange = changeZoom;
 
     plotCrystal.onclick = selectAtom;
 
@@ -119,6 +123,16 @@ function plot() {
       waveplot.dt = salmon210.dt;
 
       waveplot.plot();
+
+      var cif = crystal3d.to_cif();
+      var blob = new Blob([cif], {"type": "text/plain"});
+      if (window.navigator.msSaveBlob) {
+        window.navigator.msSaveBlob(blob, "export.cif");
+        window.navigator.msSaveOrOpenBlob(blob, "export.cif");
+      } else {
+        btnCif.href = window.URL.createObjectURL(blob);
+      }
+
     }
 }
 
@@ -150,6 +164,11 @@ function changeBond() {
   plot();
 }
 
+function changeZoom() {
+  crystal3d.zoom = parseInt(rangeZoom.value) * 0.01;
+  crystal3d.redraw();
+}
+
 function selectAtom() {
   var i = crystal3d.selected_index;
   if (i >= 0) {
@@ -164,6 +183,7 @@ function selectAtom() {
     editor.gotoLine(lineNum, 0, true);
   }
 }
+
 
 
 

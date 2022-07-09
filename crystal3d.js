@@ -18,6 +18,7 @@ class Crystal3D {
         this.atom_data = []; // 原子座標関連変数
         this.atom_select = -1; // 選択された原子
         this.bond_length = 4.5; // 最大原子間距離
+        this.zoom = 1.0 // 拡大倍率
         // プライベート変数
         // THREE.js レンダラー関連
         this.renderer = new THREE.WebGLRenderer({"canvas": this.canvas});
@@ -50,7 +51,7 @@ class Crystal3D {
         // カメラ
         this.camera.position.set(0, 0, 3);
         this.camera.lookAt(0, 0, 0);
-        this.camera.zoom = 1;
+        this.camera.zoom = this.zoom;
         // オブジェクト
         this.model.add(this.atom);
         this.model.add(this.cell);
@@ -102,20 +103,19 @@ class Crystal3D {
     }
 
 
-    redraw(resize=true) {
-        if (resize) {
-            // 表示サイズ計算
-            this.width = parseFloat(this.canvas.clientWidth);
-            this.height = parseFloat(this.canvas.clientHeight);
-            this.unit = 0.5 * Math.min(this.width, this.height);
-            // カメラ設定変更
-            this.camera.left = -0.5 * this.width / this.unit
-            this.camera.right = +0.5 * this.width / this.unit
-            this.camera.bottom = -0.5 * this.height / this.unit
-            this.camera.top = +0.5 * this.height / this.unit
-            this.camera.updateProjectionMatrix();
-            this.renderer.setSize(this.width, this.height);
-        }
+    redraw() {
+        // 表示サイズ計算
+        this.width = parseFloat(this.canvas.clientWidth);
+        this.height = parseFloat(this.canvas.clientHeight);
+        this.unit = 0.5 * Math.min(this.width, this.height);
+        // カメラ設定変更
+        this.camera.left = -0.5 * this.width / this.unit
+        this.camera.right = +0.5 * this.width / this.unit
+        this.camera.bottom = -0.5 * this.height / this.unit
+        this.camera.top = +0.5 * this.height / this.unit
+        this.camera.zoom = this.zoom;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
         // レンダリング
         this.renderer.render(this.scene, this.camera);
     }
@@ -262,8 +262,8 @@ class Crystal3D {
             this.flag_drag = false;
         } else {
             this.flag_drag = true;
-            const dx = +(x - this.xtmp) * (1.0 / this.unit);
-            const dy = -(y - this.ytmp) * (1.0 / this.unit);
+            const dx = +(x - this.xtmp) * (1.0 / this.unit / this.zoom);
+            const dy = -(y - this.ytmp) * (1.0 / this.unit / this.zoom);
             var d = new THREE.Vector3(dx, dy, 0.50);
             d.normalize();
             // 回転クオータにオンを計算
@@ -274,7 +274,7 @@ class Crystal3D {
             this.model.quaternion.copy(q.normalize());
             this.axes.quaternion.copy(q.normalize());
             // 再描画
-            this.redraw(resize);
+            this.redraw();
         }
     }
 
@@ -292,7 +292,7 @@ class Crystal3D {
             this.selected_index = -1;
             this.selector.visible = false;
         }
-        this.redraw(false);
+        this.redraw();
     }
     
 
@@ -339,6 +339,36 @@ class Crystal3D {
         axes.add(arrow2);
         axes.add(arrow3);
         return axes;
+    }
+
+    to_cif() {
+        const au_aa = 0.529177210903;
+        var tmp = "# generated using wsviewer\n";
+        tmp += "# data_\n";
+        tmp += "_symmetry_space_group_name_H-M   'P 1'\n";
+        tmp += "_cell_length_a " + (this.vec_a1.length() * au_aa) + "\n";
+        tmp += "_cell_length_b " + (this.vec_a2.length() * au_aa) + "\n";
+        tmp += "_cell_length_c " + (this.vec_a3.length() * au_aa) + "\n";
+        var cos12 = this.vec_a1.dot(this.vec_a2) / (this.vec_a1.length()*this.vec_a2.length());
+        var cos23 = this.vec_a2.dot(this.vec_a3) / (this.vec_a2.length()*this.vec_a3.length());
+        var cos31 = this.vec_a3.dot(this.vec_a1) / (this.vec_a3.length()*this.vec_a1.length());
+        tmp += "_cell_angle_alpha " + (Math.acos(cos23) / Math.PI * 180.0) + "\n";
+        tmp += "_cell_angle_beta  " + (Math.acos(cos31) / Math.PI * 180.0) + "\n";
+        tmp += "_cell_angle_gamma " + (Math.acos(cos12) / Math.PI * 180.0) + "\n";
+        tmp += "loop_\n";
+        tmp += "_atom_site_type_symbol\n";
+        tmp += "_atom_site_fract_x\n";
+        tmp += "_atom_site_fract_y\n";
+        tmp += "_atom_site_fract_z\n";
+        for (var i = 0; i < this.atom_data.length; i++) {
+            const t1 = this.atom_data[i].t1;
+            const t2 = this.atom_data[i].t2;
+            const t3 = this.atom_data[i].t3;
+            const iz = this.atom_data[i].iz;
+            const symbol = atom_symbol_table[iz];
+            tmp += symbol + " " + t1 + " " + t2 + " " + t3 + "\n";
+        }
+        return tmp;
     }
 };
 

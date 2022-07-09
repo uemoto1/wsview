@@ -39,7 +39,7 @@
 
                 <div class="w-100">
                     <div class="row" style="background-color: #ccc;">
-                        <div class="col-auto" >
+                        <div class="col-auto" style="margin:8px;">
                             <div class="input-group" style="background-color: #ccc;">
                                 <span class="input-group-text"># Cells</span>
                                 <select class="form-select" id="selectN1">
@@ -59,7 +59,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-auto">
+                        <div class="col-auto" style="margin:8px;">
                             <div class="input-group">
                                 <span class="input-group-text">Bond</span>
                                 <select class="form-select" id="selectBond">
@@ -76,6 +76,9 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="col-auto" style="margin:8px;">
+                            Zoom<input type="range" class="form-range" id="rangeZoom"  min="100" max="300" value="100">
+                        </div>
                     </div>
                 </div>
 
@@ -89,6 +92,9 @@
                             <span style="color:blue;">c</span>
                         </span>
                         <span id="boxElement"></span>
+                        <span style="float:right; padding: 8px;">
+                            <a class="btn btn-outline-secondary" href="#" id="btnCif" download="download.cif">Download CIF</a>
+                        </span>
                     </p>
                 </div>
             </div>
@@ -99,7 +105,7 @@
         </div>
     </div>
     <div class="row"  id="panelFooter" style="background-color: #ccc; color: #000; font-size:small;">
-        <span>Source code: <a href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a> by M. Uemoto @ Kobe Univ.</span>
+        <span>Copyright(c) 2022  by M. Uemoto @ Kobe Univ. Project page: <a href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a> </span>
     </div>
 </div>
 
@@ -116,31 +122,35 @@
 </div>
 <div class="modal-body">
     <p>
-        Version 20.7.7
+        Version 22.7.12
     </p>
     <p>
-        A interactive visualization tool for SALMON (Scalable Ab-initio Light-Matter simulator for Optics and Nanoscience): a first-principles electron dynamics program.
+        A interactive visualization tool for <strong>SALMON</strong> (<strong>S</strong>calable <strong>A</strong>b-initio <strong>L</strong>ight-<strong>M</strong>atter simulator for <strong>O</strong>ptics and <strong>N</strong>anoscience) program.
     </p>
     <p>
-        Copyright(C) 2022 by M. Uemoto. 
+        Copyright(c) 2022 by M. Uemoto @ Kobe Univ.
+    </p>
+    <p>
+        <strong>Sources:</strong>
+        <lu>
+            <li>GitHub <a target="_blank" href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a></li>
+        </lu>
     </p>
     <p>
         <strong>External links:</strong>
         <lu>
-            <li>Develop@github <a href="https://github.com/uemoto1/wsview/">https://github.com/uemoto1/wsview/</a></li>
-            <li>SALMON project <a href="https://salmon-tddft.jp/">https://salmon-tddft.jp/</a></li>
-            <li>OnoLab@Kobe Univ. <a href="https://www.lab.kobe-u.ac.jp/eng-ep4b">https://www.lab.kobe-u.ac.jp/eng-ep4b</a></li>
+            <li>SALMON project <a target="_blank" href="https://salmon-tddft.jp/">https://salmon-tddft.jp/</a></li>
         </lu>
     </p>
     <p>
         <strong>Credits:</strong>
         <lu>
-            <li><a href="https://getbootstrap.jp/">Bootstrap</a> The MIT License (MIT).
+            <li><a target="_blank" href="https://getbootstrap.jp/">Bootstrap</a> The MIT License (MIT).
             Copyright (c) 2011-2018 Twitter, Inc.
             Copyright (c) 2011-2018 The Bootstrap Authors.</li>
-            <li><a href="https://threejs.org/">three.js</a> The MIT License (MIT).
+            <li><a target="_blank" href="https://threejs.org/">three.js</a> The MIT License (MIT).
             Copyright (c) 2010-2022 three.js authors</li>
-            <li><a href="https://ace.c9.io/">Ace (Ajax.org Cloud9 Editor)</a> Copyright (c) 2010, Ajax.org B.V.
+            <li><a target="_blank" href="https://ace.c9.io/">Ace (Ajax.org Cloud9 Editor)</a> Copyright (c) 2010, Ajax.org B.V.
             All rights reserved.
             </li>
         </lu>
@@ -157,9 +167,9 @@
 
 
 </body>
-<script type="application/javascript" src="namelist2.js?v=20220706"></script>
-<script type="application/javascript" src="salmon210.js?v=20220706"></script>
-<script type="application/javascript" src="crystal3d.js?v=20220706"></script>
-<script type="application/javascript" src="waveplot.js?v=20220706"></script>
-<script type="application/javascript" src="script.js?v=20220706"></script>
+<script type="application/javascript" src="namelist2.js?v=20220712"></script>
+<script type="application/javascript" src="salmon210.js?v=20220712"></script>
+<script type="application/javascript" src="crystal3d.js?v=20220712"></script>
+<script type="application/javascript" src="waveplot.js?v=20220712"></script>
+<script type="application/javascript" src="script.js?v=20220712"></script>
 </html>
