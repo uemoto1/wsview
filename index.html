@@ -15,10 +15,21 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:darkblue;">
     <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1">Web SALMON view [beta]</span>
+        <span class="navbar-brand mb-0 h1">Web SALMON view</span>
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal" href="#">About</a>
+                <a class="nav-link" data-bs-toggle="modal" data-bs-target="#aboutModal" href="#">About</a>
+            </li>
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="menuFile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                File
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="menuFile">
+                <li><a class="dropdown-item" href="#" id="menuOpen" data-bs-toggle="modal" data-bs-target="#openFileModal">Open</a></li>
+                <li><a class="dropdown-item" href="#" id="menuSave" download="download.inp">Save (download)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#importCIFModal">Import CIF (experimental)</a></li>
+            </ul>
             </li>
         </ul>
     </div>
@@ -73,6 +84,8 @@
                                     <option value="4.0"> &lt; 4.0</option>
                                     <option value="4.5"> &lt; 4.5</option>
                                     <option value="5.0" selected> &lt; 5.0</option>
+                                    <option value="5.5"> &lt; 5.5</option>
+                                    <option value="6.0"> &lt; 6.0</option>
                                 </select>
                             </div>
                         </div>
@@ -122,7 +135,7 @@
 </div>
 <div class="modal-body">
     <p>
-        Version 22.7.12
+        Version 22.7.25
     </p>
     <p>
         A interactive visualization tool for <strong>SALMON</strong> (<strong>S</strong>calable <strong>A</strong>b-initio <strong>L</strong>ight-<strong>M</strong>atter simulator for <strong>O</strong>ptics and <strong>N</strong>anoscience) program.
@@ -163,13 +176,53 @@
 </div>
 </div>
 
-
-
+<!-- Modal -->
+<div class="modal fade" id="openFileModal" tabindex="-1" aria-labelledby="openFileModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="openFileModalLabel">Open inputfile</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <p>
+        <input id="fileInput" type="file"/>
+    </p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-primary disabled" id="btnOpenFileInput" data-bs-dismiss="modal">Open</button>
+</div>
+</div>
+</div>
+</div>
+    
+<!-- Modal -->
+<div class="modal fade" id="importCIFModal" tabindex="-1" aria-labelledby="importCIFModalLabel" aria-hidden="true">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title" id="importCIFModalLabel">Import CIF File (experimental)</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <p>
+        <input id="fileCIF" type="file"/>
+    </p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<button type="button" class="btn btn-primary disabled" data-bs-dismiss="modal" id="btnImportCIF">Convert</button>
+</div>
+</div>
+</div>
+</div>
 
 </body>
-<script type="application/javascript" src="namelist2.js?v=20220712"></script>
-<script type="application/javascript" src="salmon210.js?v=20220712"></script>
-<script type="application/javascript" src="crystal3d.js?v=20220712"></script>
-<script type="application/javascript" src="waveplot.js?v=20220712"></script>
-<script type="application/javascript" src="script.js?v=20220712"></script>
+<script type="application/javascript" src="namelist2.js?v=20220725"></script>
+<script type="application/javascript" src="salmon210.js?v=20220725"></script>
+<script type="application/javascript" src="crystal3d.js?v=20220725"></script>
+<script type="application/javascript" src="waveplot.js?v=20220725"></script>
+<script type="application/javascript" src="script.js?v=20220725"></script>
+<script type="application/javascript" src="convert.js?v=20220725"></script>
 </html>

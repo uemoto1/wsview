@@ -24,6 +24,12 @@ selectBond = document.getElementById("selectBond");
 
 rangeZoom =  document.getElementById("rangeZoom");
 
+menuSave = document.getElementById("menuSave")
+fileInput = document.getElementById("fileInput")
+btnOpenFileInput = document.getElementById("btnOpenFileInput")
+fileCIF = document.getElementById("fileCIF")
+btnImportCIF = document.getElementById("btnImportCIF")
+
 // エディタ画面を初期化
 const editor = ace.edit("panelEditor");
 
@@ -48,7 +54,13 @@ function setup() {
     rangeZoom.onchange = changeZoom;
 
     plotCrystal.onclick = selectAtom;
-
+    
+    menuSave.onclick = clickSaveInput;
+    fileInput.onchange = changeFileInput;
+    btnOpenFileInput.onclick = clickBtnOpenFileInput;
+    fileCIF.onchange = changeFileCIF;
+    btnImportCIF.onclick = clickbtnImportCIF;
+    
     plot();
     resize();
 }
@@ -126,12 +138,7 @@ function plot() {
 
       var cif = crystal3d.to_cif();
       var blob = new Blob([cif], {"type": "text/plain"});
-      if (window.navigator.msSaveBlob) {
-        window.navigator.msSaveBlob(blob, "export.cif");
-        window.navigator.msSaveOrOpenBlob(blob, "export.cif");
-      } else {
-        btnCif.href = window.URL.createObjectURL(blob);
-      }
+      btnCif.href = window.URL.createObjectURL(blob);
 
     }
 }
@@ -186,6 +193,50 @@ function selectAtom() {
 
 
 
+
+function changeFileInput() {
+  btnOpenFileInput.classList.remove("disabled")
+}
+
+function changeFileCIF() {
+  btnImportCIF.classList.remove("disabled")
+}
+
+function clickBtnOpenFileInput() {
+  if (fileInput.files.length == 1) {
+    var reader = new FileReader;
+    reader.readAsText(fileInput.files[0], "utf8");
+    reader.onload = function(){
+      editor.setValue(reader.result);
+      plot();
+    };
+  }
+  fileInput.value = "";
+  btnOpenFileInput.classList.add("disabled")
+}
+
+function clickSaveInput(e) {
+    var data = editor.getValue();
+    data = data.replace('\r\n', '\n');
+    const blob = new Blob([data], {type: 'text/plain'});
+    e.currentTarget.href = window.URL.createObjectURL(blob);
+}
+
+function clickbtnImportCIF(e) {
+  if (fileCIF.files.length == 1) {
+    var reader = new FileReader;
+    reader.readAsText(fileCIF.files[0], "utf8");
+    reader.onload = function(){
+      var code = reader.result;
+      console.log(code);
+      var code2 = generateInput(code);
+      editor.setValue(code2);
+      plot();
+    };
+  }
+  fileCIF.value = "";
+  btnImportCIF.classList.add("disabled")
+}
 
 var resize_timer = undefined;
 window.onresize = function() {
