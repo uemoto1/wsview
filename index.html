@@ -205,10 +205,88 @@
 <h5 class="modal-title" id="importCIFModalLabel">Import CIF File (experimental)</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
+
+
 <div class="modal-body">
-    <p>
-        <input id="fileCIF" type="file"/>
-    </p>
+    <div class="mb-3">
+        <label for="fileCIF" class="form-label">Select .cif file from your computer:</label>
+        <input class="form-control" type="file" id="fileCIF">
+    </div>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab">
+                Basic
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab">
+                Advanced
+            </button>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="home" role="tabpanel">
+            <br/>
+            <div class="row mb-3">
+                <label for="modeCIF" class="col-sm-3 col-form-label">Mode</label>
+                <div class="col-sm-9">
+                    <select class="form-select" id="selectCifImportMode" aria-label="Default select example">
+                        <option value="dft" selected>Ground-State calculation (dft)</option>
+                        <option value="tddft_pulse" selected>Real-Time calculation (tddft_pulse)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-sm-4">Unit system</div>
+                <div class="form-check col-sm-4">
+                    <input class="form-check-input" type="radio" name="optCifImportUnit" id="optCifImportUnitAu" checked>
+                    <label class="form-check-label" for="optCifImportUnitAu">Atomic units</label>
+                  </div>
+                  <div class="form-check col-sm-4">
+                    <input class="form-check-input" type="radio" name="optCifImportUnit" id="optCifImportUnitAng">
+                    <label class="form-check-label" for="optCifImportUnitAng">&Aring; / fs / eV units</label>
+                  </div>
+            </div>
+            <div class="row mb-3">
+                <label for="spacingCIF" class="col-sm-3 col-form-label">Grid spacing</label>
+                <div class="col-sm-9">
+                    <select class="form-select" id="selectCifImportGrid" aria-label="Default select example">
+                        <option value="0.30">Rough (< 0.30 &Aring;)</option>
+                        <option value="0.25">Corse (< 0.25 &Aring;)</option>
+                        <option value="0.20" selected>Medium (< 0.20 &Aring;)</option>
+                        <option value="0.15">Fine (< 0.15 &Aring;)</option>
+                        <option value="0.10">Very fine (< 0.10 &Aring;)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="advanced" role="tabpanel">
+            <!--
+            <div class="row mb-3">
+                <label for="spacingCIF" class="col-sm-3 col-form-label">k-point</label>
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputAddress" value="4">
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputAddress" value="4">
+                </div>
+                <div class="col-sm-3">
+                    <input type="number" class="form-control" id="inputAddress" value="4">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="ppformat" class="col-sm-3 col-form-label">PP format</label>
+                <div class="col-sm-9">
+                    <select class="form-select" id="ppformat" aria-label="Default select example">
+                        <option value="fhi">FHI format (ABINIT)</option>
+                        <option value="psp8">psp8 format (PseudoDojo)</option>
+                    </select>
+                </div>
+            </div>
+            -->
+        </div>
+    </div>
 </div>
 <div class="modal-footer">
 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -219,10 +297,10 @@
 </div>
 
 </body>
-<script type="application/javascript" src="namelist2.js?v=20220725"></script>
-<script type="application/javascript" src="salmon210.js?v=20220725"></script>
-<script type="application/javascript" src="crystal3d.js?v=20220725"></script>
-<script type="application/javascript" src="waveplot.js?v=20220725"></script>
-<script type="application/javascript" src="script.js?v=20220725"></script>
-<script type="application/javascript" src="convert.js?v=20220725"></script>
+<script type="application/javascript" src="namelist2.js?v=20220801"></script>
+<script type="application/javascript" src="salmon210.js?v=20220801"></script>
+<script type="application/javascript" src="crystal3d.js?v=20220801"></script>
+<script type="application/javascript" src="waveplot.js?v=20220801"></script>
+<script type="application/javascript" src="script.js?v=20220801"></script>
+<script type="application/javascript" src="convert.js?v=20220801"></script>
 </html>

@@ -227,9 +227,11 @@ function clickbtnImportCIF(e) {
     var reader = new FileReader;
     reader.readAsText(fileCIF.files[0], "utf8");
     reader.onload = function(){
-      var code = reader.result;
-      console.log(code);
-      var code2 = generateInput(code);
+      const code = reader.result;
+      const mode = document.getElementById("selectCifImportMode").value;
+      const grid = parseFloat(document.getElementById("selectCifImportGrid").value);
+      const unit = document.getElementById("optCifImportUnitAu").checked ? "au" : "A_eV_fs";
+      var code2 =generateInput(code, mode, grid, unit);
       editor.setValue(code2);
       plot();
     };
