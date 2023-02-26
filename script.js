@@ -107,7 +107,8 @@ function plot() {
         var iz = salmon210.izatom[i];
         var symbol = atom_symbol_table[iz];
         var color = atom_color_table[iz];
-        tmp += "<span class='rounded-pill' style='margin:4px;padding:16px;background-color:#" + color +";'>" + symbol + "</span>";
+        tmp += "<span class='atom-circle' style='background-color:#" + color +";'></span>";
+        tmp += "<span class='atom-name'>" + symbol + "</span>";
       }
       boxElement.innerHTML = tmp;
 

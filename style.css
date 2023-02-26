@@ -3,16 +3,31 @@
     margin: 2px;
     border: solid;
     border-width: 1px;
-    /* border-color: black; */
     display:inline-block;
 }
 
-#boxElement span {
+.axis {
     padding: 4px;
     margin: 2px;
     border: solid;
     border-width: 1px;
-    /* border-color: black; */
     display:inline-block;
+}
+
+.atom-circle {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 50%;
+    border: 1px solid black;
+    display:inline-block;    
+    vertical-align: middle;
+    margin-left: 20px;
+    margin-right: 5px;
+}
+
+.atom-name {
+    padding-bottom: 1em;
+    display:inline-block;
+    vertical-align: sub;
 }
 
