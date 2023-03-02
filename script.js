@@ -12,10 +12,15 @@ panelViewer = document.getElementById("panelViewer");
 panelFooter = document.getElementById("panelFooter");
 panelEditor = document.getElementById("panelEditor")
 plotCrystal = document.getElementById("plotCrystal")
+plotShape = document.getElementById("plotShape")
 plotWaveform = document.getElementById("plotWaveform")
 btnPlot = document.getElementById("btnPlot");
 btnCif = document.getElementById("btnCif");
 boxElement = document.getElementById("boxElement");
+
+tab = 0
+tabCrystal = document.getElementById("tabCrystal");
+tabShape = document.getElementById("tabShape");
 
 selectN1 = document.getElementById("selectN1");
 selectN2 = document.getElementById("selectN2");
@@ -33,9 +38,11 @@ btnImportCIF = document.getElementById("btnImportCIF")
 // エディタ画面を初期化
 const editor = ace.edit("panelEditor");
 
-var salmon210 = new SALMON210;
+var salmon210;
 
 var crystal3d = new Crystal3D(plotCrystal);
+
+var shape3d = new Shape3D(plotShape);
 
 var waveplot = new Waveplot(plotWaveform);
 
@@ -60,16 +67,19 @@ function setup() {
     btnOpenFileInput.onclick = clickBtnOpenFileInput;
     fileCIF.onchange = changeFileCIF;
     btnImportCIF.onclick = clickbtnImportCIF;
+
+    tabCrystal.onclick = clickTabCrystal;
+    tabShape.onclick = clickTabShape;
     
     plot();
     resize();
 }
 
 function plot() {
+  salmon210 = new SALMON210();
   salmon210.parse(editor.getValue());
   err = [];
-  var yn_periodic = salmon210.namelist.data.system.yn_periodic.val;
-
+  var yn_periodic = salmon210.yn_periodic;
 
     // err = []; warn = [];
     if (salmon210.error.length > 0) {
@@ -102,8 +112,8 @@ function plot() {
       crystal3d.atom_data = salmon210.atom_data;
       crystal3d.plot((yn_periodic != 'y'));
 
-      var tmp = ``;
-      for (var i in salmon210.izatom) {
+      var tmp = "";
+      for (var i=1; i<=salmon210.nelem; i++) {
         var iz = salmon210.izatom[i];
         var symbol = atom_symbol_table[iz];
         var color = atom_color_table[iz];
@@ -134,8 +144,41 @@ function plot() {
       waveplot.t1_start = salmon210.t1_start;
       waveplot.nt = salmon210.nt;
       waveplot.dt = salmon210.dt;
+      if (salmon210.at_em > 0) {
+        waveplot.nt = Math.round(salmon210.at_em / 0.1);
+        waveplot.dt = 0.1;
+      }
 
       waveplot.plot();
+
+      if (salmon210.num_rgrid_em[1] > 0) {
+        shape3d.ix_min = -salmon210.num_rgrid_em[1] / 2
+        shape3d.iy_min = -salmon210.num_rgrid_em[2] / 2
+        shape3d.iz_min = -salmon210.num_rgrid_em[3] / 2
+        shape3d.ix_max = +salmon210.num_rgrid_em[1] / 2
+        shape3d.iy_max = +salmon210.num_rgrid_em[2] / 2
+        shape3d.iz_max = +salmon210.num_rgrid_em[3] / 2
+        shape3d.hx = salmon210.al_em[1] / salmon210.num_rgrid_em[1]
+        shape3d.hy = salmon210.al_em[2] / salmon210.num_rgrid_em[2]
+        shape3d.hz = salmon210.al_em[3] / salmon210.num_rgrid_em[3]
+      } else {
+        shape3d.ix_min = 1;
+        shape3d.iy_min = 1;
+        shape3d.iz_min = 1;
+        shape3d.ix_max = salmon210.nx_m
+        shape3d.iy_max = salmon210.ny_m
+        shape3d.iz_max = salmon210.nz_m
+        shape3d.hx = salmon210.hx_m
+        shape3d.hy = salmon210.hy_m
+        shape3d.hz = salmon210.hz_m
+      }
+      shape3d.n_s = salmon210.n_s
+      shape3d.id_s = salmon210.id_s
+      shape3d.typ_s = salmon210.typ_s
+      shape3d.ori_s = salmon210.ori_s
+      shape3d.inf_s = salmon210.inf_s
+
+      shape3d.plot();
 
       var cif = crystal3d.to_cif();
       var blob = new Blob([cif], {"type": "text/plain"});
@@ -153,10 +196,13 @@ function resize() {
 
     plotCrystal.style.width = (panelViewer.clientWidth) + "px";
     plotCrystal.style.height = (panelViewer.clientHeight * 0.75) + "px";
+    plotShape.style.width = (panelViewer.clientWidth) + "px";
+    plotShape.style.height = (panelViewer.clientHeight * 0.75) + "px";
     plotWaveform.style.width = (panelViewer.clientWidth) + "px";
     plotWaveform.style.height = (panelViewer.clientHeight * 0.25) + "px";
     //editor.resize();
     crystal3d.redraw();
+    shape3d.redraw();
     editor.resize();
 }
 
@@ -239,6 +285,22 @@ function clickbtnImportCIF(e) {
   }
   fileCIF.value = "";
   btnImportCIF.classList.add("disabled")
+}
+
+function clickTabCrystal() {
+  tabCrystal.classList.add("active");
+  tabShape.classList.remove("active");
+  plotCrystal.style.display = "";
+  plotShape.style.display = "none";
+  resize();
+}
+
+function clickTabShape() {
+  tabCrystal.classList.remove("active");
+  tabShape.classList.add("active");
+  plotCrystal.style.display = "none";
+  plotShape.style.display = "";
+  resize();
 }
 
 var resize_timer = undefined;

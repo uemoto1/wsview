@@ -109,9 +109,18 @@
                         </span>
                     </p>
                 </div>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <a class="nav-link active" id="tabCrystal"">Atomic structure</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="tabShape">FDTD structure</a>
+                    </li>
+                </ul>
             </div>
             <div class="row" id="panelViewer" style="background-color: #111;">
                 <canvas id="plotCrystal" style="background-color: blue; padding: 0; "></canvas>
+                <canvas id="plotShape" style="background-color: red; padding: 0; display: none;"></canvas>
                 <canvas id="plotWaveform" style="background-color: #fff; padding: 12px; "></canvas>
             </div>
         </div>
@@ -296,7 +305,7 @@
 </div>
 
 </body>
-<script type="application/javascript" src="namelist2.js?v=20220801"></script>
+<script type="application/javascript" src="namelist.js?v=20220801"></script>
 <script type="application/javascript" src="salmon210.js?v=20220801"></script>
 <script type="application/javascript" src="crystal3d.js?v=20220801"></script>
 <script type="application/javascript" src="shaper3d.js?v=20230301"></script>

@@ -1,5 +1,5 @@
 // 結晶構造描画クラス
-class Shaper3D {
+class Shape3D {
 
     constructor(canvas) {
         // グローバル変数
@@ -150,17 +150,22 @@ class Shaper3D {
 
         var imat = new Int8Array(nx * ny * nz);
         for (var i=1; i<=this.n_s; i++) {
+                [imat, this.typ_s[i], 
+                this.ori_s[i][1], this.ori_s[i][2], this.ori_s[i][3],
+                this.inf_s[i][1], this.inf_s[i][2], this.inf_s[i][3], this.inf_s[i][4], this.inf_s[i][5], this.id_s[i]
+            ]
             this.fill_shape(imat, this.typ_s[i], 
-                this.ori_s[i].x, this.ori_s[i].y, this.ori_s[i].z,
-                this.inf_s[i].x, this.inf_s[i].y, this.inf_s[i].z, 0, 0, this.id_s[i]);
+                this.ori_s[i][1], this.ori_s[i][2], this.ori_s[i][3],
+                this.inf_s[i][1], this.inf_s[i][2], this.inf_s[i][3], this.inf_s[i][4], this.inf_s[i][5], this.id_s[i]);
         }
 
         this.remove_useless_cell(imat);
-        const geometry = new THREE.BoxGeometry(this.dx, this.dy, this.dz);
+        const geometry = new THREE.BoxGeometry(this.hx, this.hy, this.hz);
         for(var jx=0; jx<nx; jx++) {
             for(var jy=0; jy<ny; jy++) {
                 for(var jz=0; jz<nz; jz++) {
                     const m = imat[jx*ny*nz+jy*nz+jz];
+                    
                     if (m > 0) {
                         const cube = new THREE.Mesh(geometry, this.face_material[m]);
                         cube.position.x = (jx - nx * 0.5) * this.hx

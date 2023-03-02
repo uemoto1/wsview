@@ -1,202 +1,5 @@
 // SALMON v 2.1.0 principal input parameters
-salmon210_ignore = [
-    'opt', 'md', 'poisson', 'band',
-    'singlescale', 'maxwell', 'jellium',
-    'code', 'atomic_red_coor', 'atomic_coor'
-];
 
-salmon210_namelist = {
-    'calculation': {
-        'theory': {type:'character(32)', default_val:'tddft'},
-        'yn_md': {type:'character(1)'},
-        'yn_opt': {type:'character(1)'},
-    },
-    'control': {
-        'sysname': {type:'character(256)', default_val:'default'},
-        'base_directory': {type:'character(256)'},
-        'yn_restart': {type:'character(1)'},
-        'directory_read_data': {type:'character(256)'},
-        'yn_self_checkpoint': {type:'character(1)'},
-        'checkpoint_interval': {type:'integer'},
-        'yn_reset_step_restart': {type:'character(1)'},
-        'read_gs_restart_data': {type:'character(256)'},
-        'write_gs_restart_data': {type:'character(256)'},
-        'time_shutdown': {type:'real(8)'},
-        'method_wf_distributor': {type:'character(20)'},
-        'nblock_wf_distribute': {type:'integer'},
-        'read_gs_dns_cube': {type:'character(1)'},
-        'write_gs_wfn_k': {type:'character(1)'},
-        'write_rt_wfn_k': {type:'character(1)'},
-    },
-    'parallel': {
-        'nproc_k': {type:'integer', default_val:0},
-        'nproc_ob': {type:'integer', default_val:0},
-        'nproc_rgrid': {type:'integer', imin:1, imax:3, default_val:0},
-        'yn_ffte': {type:'character(1)'},
-        'yn_scalapack': {type:'character(1)'},
-        'yn_eigenexa': {type:'character(1)'},
-        'yn_diagonalization_red_mem': {type:'character(1)'},
-        'process_allocation': {type:'character(32)'},
-    },
-    'units': {
-        'unit_system': {type:'character(16)', default_val:"a.u."},
-    },
-    'system': {
-        'yn_periodic': {type:'character(1)', default_val:'n'},
-        'spin': {type:'character(16)'},
-        'al': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'al_vec1': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'al_vec2': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'al_vec3': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'nstate': {type:'integer', default_val:0},
-        'nelec': {type:'integer', default_val:0},
-        'nelec_spin': {type:'integer', imin:1, imax:2, default_val:0},
-        'temperature': {type:'real(8)'},
-        'temperature_k': {type:'real(8)'},
-        'nelem': {type:'integer', default_val:0},
-        'natom': {type:'integer', default_val:0},
-        'file_atom_coor': {type:'character(256)'},
-        'file_atom_red_coor': {type:'character(256)'},
-        'yn_spinorbit': {type:'character(1)'},
-        'yn_symmetry': {type:'character(3)'},
-        'absorbing_boundary': {type:'character(16)'},
-        'imagnary_potential_w0': {type:'real(8)'},
-        'imagnary_potential_dr': {type:'real(8)'},
-    },
-    'scf': {
-        'method_init_wf': {type:'character(8)'},
-        'iseed_number_change': {type:'integer'},
-        'method_min': {type:'character(8)'},
-        'ncg': {type:'integer'},
-        'ncg_init': {type:'integer'},
-        'method_mixing': {type:'character(8)'},
-        'mixrate': {type:'real(8)'},
-        'nmemory_mb': {type:'integer'},
-        'alpha_mb': {type:'real(8)'},
-        'nmemory_p': {type:'integer'},
-        'beta_p': {type:'real(8)'},
-        'yn_auto_mixing': {type:'character(1)'},
-        'update_mixing_ratio': {type:'real(8)'},
-        'nscf': {type:'integer'},
-        'yn_subspace_diagonalization': {type:'character(1)'},
-        'convergence': {type:'character(16)'},
-        'threshold': {type:'real(8)'},
-        'nscf_init_redistribution': {type:'integer'},
-        'nscf_init_no_diagonal': {type:'integer'},
-        'nscf_init_mix_zero': {type:'integer'},
-        'conv_gap_mix_zero': {type:'real(8)'},
-        'method_init_density': {type:'character(2)'},
-    },
-    'rgrid': {
-        'dl': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'num_rgrid': {type:'integer', imin:1, imax:3, default_val:0},
-    },
-    'kgrid': {
-        'num_kgrid': {type:'integer', imin:1, imax:3, default_val:1},
-        'file_kw': {type:'character(256)'},
-    },
-    'tgrid': {
-        'nt': {type:'integer', default_val:0},
-        'dt': {type:'real(8)', default_val:0.0},
-        'gram_schmidt_interval': {type:'integer'},
-    },
-    'functional': {
-        'xc': {type:'character(64)'},
-        'cname': {type:'character(64)'},
-        'xname': {type:'character(64)'},
-        'alibx': {type:'character(64)'},
-        'alibc': {type:'character(64)'},
-        'alibxc': {type:'character(64)'},
-        'cval': {type:'real(8)'},
-    },
-    'emfield': {
-        'trans_longi': {type:'character(2)', default_val:'tr'},
-        'ae_shape1': {type:'character(16)', default_val:'none'},
-        'file_input1': {type:'character(256)'},
-        'e_impulse': {type:'real(8)', default_val:0.0},
-        'e_amplitude1': {type:'real(8)', default_val:0.0},
-        'i_wcm2_1': {type:'real(8)', default_val:-1e0},
-        'tw1': {type:'real(8)', default_val:0.0},
-        'omega1': {type:'real(8)', default_val:0.0},
-        'epdir_re1': {type:'real(8)', imin:1, imax:3, default_val:{1:1.0,2:0.0,3:0.0}},
-        'epdir_im1': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'phi_cep1': {type:'real(8)', default_val:0.0},
-        'ae_shape2': {type:'character(16)', default_val:'none'},
-        'e_amplitude2': {type:'real(8)', default_val:0.0},
-        'i_wcm2_2': {type:'real(8)', default_val:-1e0},
-        'tw2': {type:'real(8)', default_val:0.0},
-        'omega2': {type:'real(8)', default_val:0.0},
-        'epdir_re2': {type:'real(8)', imin:1, imax:3, default_val:{1:1,2:0,3:0}},
-        'epdir_im2': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'phi_cep2': {type:'real(8)', default_val:0.0},
-        't1_t2': {type:'real(8)', default_val:0.0},
-        't1_start': {type:'real(8)', default_val:0.0},
-        'num_dipole_source': {type:'integer', default_val:0},
-        'vec_dipole_source': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'cood_dipole_source': {type:'real(8)', imin:1, imax:3, default_val:0.0},
-        'rad_dipole_source': {type:'real(8)', default_val:2e0},
-    },
-    'ewald': {
-        'newald': {type:'integer'},
-        'aewald': {type:'real(8)'},
-        'cutoff_r': {type:'real(8)'},
-        'cutoff_r_buff': {type:'real(8)'},
-        'cutoff_g': {type:'real(8)'},
-    },
-    'pseudo': {
-        'file_pseudo': {type:'character(256)', imin:1, imax:99, default_val:'none'},
-        'lmax_ps': {type:'integer', imin:1, imax:99, default_val:-1},
-        'lloc_ps': {type:'integer', imin:1, imax:99, default_val:-1},
-        'izatom': {type:'integer', imin:1, imax:99, default_val:-1},
-        'yn_psmask': {type:'character(1)'},
-        'alpha_mask': {type:'real(8)'},
-        'gamma_mask': {type:'real(8)'},
-        'eta_mask': {type:'real(8)'},
-    },
-    'propagation': {
-        'n_hamil': {type:'integer'},
-        'propagator': {type:'character(16)'},
-        'yn_fix_func': {type:'character(1)'},
-        'yn_predictor_corrector': {type:'character(1)'},
-    },
-    'analysis': {
-        'projection_option': {type:'character(2)'},
-        'out_projection_step': {type:'integer'},
-        'nenergy': {type:'integer'},
-        'de': {type:'real(8)'},
-        'out_rt_energy_step': {type:'integer'},
-        'yn_out_psi': {type:'character(1)'},
-        'yn_out_dos': {type:'character(1)'},
-        'yn_out_dos_set_fe_origin': {type:'character(1)'},
-        'out_dos_start': {type:'real(8)'},
-        'out_dos_end': {type:'real(8)'},
-        'out_dos_nenergy': {type:'integer'},
-        'out_dos_width': {type:'real(8)'},
-        'out_dos_function': {type:'character(16)'},
-        'yn_out_pdos': {type:'character(1)'},
-        'yn_out_dns': {type:'character(1)'},
-        'yn_out_dns_rt': {type:'character(1)'},
-        'yn_out_dns_ac_je': {type:'character(1)'},
-        'out_dns_rt_step': {type:'integer'},
-        'out_dns_ac_je_step': {type:'integer'},
-        'out_old_dns': {type:'character(1)'},
-        'yn_out_dns_trans': {type:'character(1)'},
-        'out_dns_trans_energy': {type:'real(8)'},
-        'yn_out_elf': {type:'character(1)'},
-        'yn_out_elf_rt': {type:'character(1)'},
-        'out_elf_rt_step': {type:'integer'},
-        'yn_out_estatic_rt': {type:'character(1)'},
-        'out_estatic_rt_step': {type:'integer'},
-        'yn_out_rvf_rt': {type:'character(1)'},
-        'out_rvf_rt_step': {type:'integer'},
-        'yn_out_tm': {type:'character(1)'},
-        'out_ms_step': {type:'integer'},
-        'format_voxel_data': {type:'character(16)'},
-        'nsplit_voxel_data': {type:'integer'},
-        'yn_out_perflog': {type:'character(1)'},
-        'format_perflog': {type:'character(6)'},
-    },
-}
 
 
 
@@ -329,30 +132,170 @@ salmon210_sample = `!###########################################################
 
 `;
 
+function _parseFString(x) {
+    return x.replace(/"|'/g, "")
+}
 
+function _parseFString1d(x) {
+    var tmp = {}
+    for (var i in x) {
+        tmp[i] = _parseFString(x[i])
+    }
+    return tmp
+}
+
+function _parseFFloat(x) {
+    return parseFloat(x.replace(/d|D/,"e"))
+}
+
+function _parseFFloat1d(x) {
+    var tmp = {}
+    for (var i in x) {
+        tmp[i] = _parseFFloat(x[i])
+    }
+    return tmp
+}
+
+function _parseFFloat2d(x) {
+    var tmp = {}
+    for (var i in x) {
+        tmp[i] = {}
+        for (var j in x[i]) {
+            tmp[i][j] = _parseFFloat(x[i][j])
+        }
+    }
+    return tmp
+}
+
+function _parseInt1d(x) {
+    var tmp = {}
+    for (var i in x) {
+        tmp[i] = parseInt(x[i])
+    }
+    return tmp
+}
 
 class SALMON210 {
 
 
 
     constructor() {
-        this.namelist = new Namelist(salmon210_namelist);
-        this.namelist.ignore = salmon210_ignore;
-        this.error = [];
-        this.warning = [];
+        this.nml = new Namelist();
+        this.nml.add_group("units");
+        this.nml.add_group("system");
+        this.nml.add_group("pseudo");
+        this.nml.add_group("rgrid");
+        this.nml.add_group("tgrid");
+        this.nml.add_group("emfield");
+        this.nml.add_group("maxwell");
+        this.nml.add_group("multiscale");
+        this.nml.add_variable("units", "unit_system", [], "a.u.")
+        this.nml.add_variable("system", "yn_periodic", [], "n")
+        this.nml.add_variable("system", "al_vec1", [[1, 3]], "0")
+        this.nml.add_variable("system", "al_vec2", [[1, 3]], "0")
+        this.nml.add_variable("system", "al_vec3", [[1, 3]], "0")
+        this.nml.add_variable("system", "al", [[1, 3]], "0")
+        this.nml.add_variable("system", "nelem", [], "0")
+        this.nml.add_variable("system", "natom", [], "0")
+        this.nml.add_variable("pseudo", "izatom", [[1,99]], "0")
+        this.nml.add_variable("rgrid", "num_rgrid", [[1, 3]], "0")
+        this.nml.add_variable("rgrid", "dl", [[1, 3]], "0")
+        this.nml.add_variable("tgrid", "dt", [], "0")
+        this.nml.add_variable("tgrid", "nt", [], "0")
+        this.nml.add_variable("emfield", "e_impulse", [], "0")
+        this.nml.add_variable("emfield", "ae_shape1", [], "none")
+        this.nml.add_variable("emfield", "e_amplitude1", [], "0")
+        this.nml.add_variable("emfield", "i_wcm2_1", [], "0")
+        this.nml.add_variable("emfield", "tw1", [], "0")
+        this.nml.add_variable("emfield", "omega1", [], "0")
+        this.nml.add_variable("emfield", "epdir_re1", [[1, 3]], "0")
+        this.nml.add_variable("emfield", "epdir_im1", [[1, 3]], "0")
+        this.nml.add_variable("emfield", "phi_cep1", [], "0")
+        this.nml.add_variable("emfield", "ae_shape2", [], "none")
+        this.nml.add_variable("emfield", "e_amplitude2", [], "0")
+        this.nml.add_variable("emfield", "i_wcm2_2", [], "0")
+        this.nml.add_variable("emfield", "tw2", [], "0")
+        this.nml.add_variable("emfield", "omega2", [], "0")
+        this.nml.add_variable("emfield", "epdir_re2", [[1, 3]], "0")
+        this.nml.add_variable("emfield", "epdir_im2", [[1, 3]], "0")
+        this.nml.add_variable("emfield", "phi_cep2", [], "0")
+        this.nml.add_variable("emfield", "t1_t2", [], "0")
+        this.nml.add_variable("emfield", "t1_start", [], "0")
+        this.nml.add_variable("maxwell", "n_s", [], "0")
+        this.nml.add_variable("maxwell", "id_s", [[1, 8]], "0")
+        this.nml.add_variable("maxwell", "typ_s", [[1, 8]], "")
+        this.nml.add_variable("maxwell", "ori_s", [[1, 8], [1, 3]], "0")
+        this.nml.add_variable("maxwell", "inf_s", [[1, 8], [1, 5]], "0")
+        this.nml.add_variable("maxwell", "al_em", [[1, 3]], "0")
+        this.nml.add_variable("maxwell", "num_rgrid_em", [[1, 3]], "0")
+        this.nml.add_variable("maxwell", "at_em", [], "0")
+        this.nml.add_variable("multiscale", "nx_m", [], "1")
+        this.nml.add_variable("multiscale", "ny_m", [], "1")
+        this.nml.add_variable("multiscale", "nz_m", [], "1")
+        this.nml.add_variable("multiscale", "hx_m", [], "1.00")
+        this.nml.add_variable("multiscale", "hy_m", [], "1.00")
+        this.nml.add_variable("multiscale", "hz_m", [], "1.00")
     }
 
     parse(inputfile) {
-
-        this.namelist.parse(inputfile);
+        const inputfile_nml = this._exclude_atomic_coor(inputfile)
+        this.nml.parse(inputfile_nml);
 
         // Namelist読み込み時にエラーが検出された場合は終了する
-        this.error = this.namelist.error;
-        this.warning = this.namelist.warning;
-        if (this.namelist.error.length > 0) return;
+        if (! this.nml.success) {
+            this.errorLineNum = this.nml.errorLineNum;
+            return;
+        }
+
+        this.unit_system = _parseFString(this.nml.data.units.unit_system)
+        this.yn_periodic = _parseFString(this.nml.data.system.yn_periodic)
+        this.al_vec1 = _parseFFloat1d(this.nml.data.system.al_vec1)
+        this.al_vec2 = _parseFFloat1d(this.nml.data.system.al_vec2)
+        this.al_vec3 = _parseFFloat1d(this.nml.data.system.al_vec3)
+        this.al = _parseFFloat1d(this.nml.data.system.al)
+        this.nelem = parseInt(this.nml.data.system.nelem)
+        this.izatom = _parseInt1d(this.nml.data.pseudo.izatom)
+        this.natom = parseInt(this.nml.data.pseudo.natom)
+        this.num_rgrid = _parseInt1d(this.nml.data.rgrid.num_rgrid)
+        this.dl = _parseFFloat1d(this.nml.data.rgrid.dl)
+        this.dt = _parseFFloat(this.nml.data.tgrid.dt)
+        this.nt = parseInt(this.nml.data.tgrid.nt)
+        this.e_impulse = _parseFFloat(this.nml.data.emfield.e_impulse)
+        this.ae_shape1 = _parseFString(this.nml.data.emfield.ae_shape1)
+        this.e_amplitude1 = _parseFFloat(this.nml.data.emfield.e_amplitude1)
+        this.i_wcm2_1 = _parseFFloat(this.nml.data.emfield.i_wcm2_1)
+        this.tw1 = _parseFFloat(this.nml.data.emfield.tw1)
+        this.omega1 = _parseFFloat(this.nml.data.emfield.omega1)
+        this.epdir_re1 = _parseFFloat1d(this.nml.data.emfield.epdir_re1)
+        this.epdir_im1 = _parseFFloat1d(this.nml.data.emfield.epdir_im1)
+        this.phi_cep1 = _parseFFloat(this.nml.data.emfield.phi_cep1)
+        this.ae_shape2 = _parseFString(this.nml.data.emfield.ae_shape2)
+        this.e_amplitude2 = _parseFFloat(this.nml.data.emfield.e_amplitude2)
+        this.i_wcm2_2 = _parseFFloat(this.nml.data.emfield.i_wcm2_2)
+        this.tw2 = _parseFFloat(this.nml.data.emfield.tw2)
+        this.omega2 = _parseFFloat(this.nml.data.emfield.omega2)
+        this.epdir_re2 = _parseFFloat1d(this.nml.data.emfield.epdir_re2)
+        this.epdir_im2 = _parseFFloat1d(this.nml.data.emfield.epdir_im2)
+        this.phi_cep2 = _parseFFloat(this.nml.data.emfield.phi_cep2)
+        this.t1_t2 = _parseFFloat(this.nml.data.emfield.t1_t2)
+        this.t1_start = _parseFFloat(this.nml.data.emfield.t1_start)
+        this.n_s = parseInt(this.nml.data.maxwell.n_s)
+        this.id_s = _parseInt1d(this.nml.data.maxwell.id_s)
+        this.typ_s = _parseFString1d(this.nml.data.maxwell.typ_s)
+        this.ori_s = _parseFFloat2d(this.nml.data.maxwell.ori_s)
+        this.inf_s = _parseFFloat2d(this.nml.data.maxwell.inf_s)
+        this.nx_m = parseInt(this.nml.data.multiscale.nx_m)
+        this.ny_m = parseInt(this.nml.data.multiscale.ny_m)
+        this.nz_m = parseInt(this.nml.data.multiscale.nz_m)
+        this.hx_m = _parseFFloat(this.nml.data.multiscale.hx_m)
+        this.hy_m = _parseFFloat(this.nml.data.multiscale.hy_m)
+        this.hz_m = _parseFFloat(this.nml.data.multiscale.hz_m)
+        this.al_em = _parseFFloat1d(this.nml.data.maxwell.al_em)
+        this.num_rgrid_em = _parseInt1d(this.nml.data.maxwell.num_rgrid_em)
+        this.at_em = _parseFFloat(this.nml.data.maxwell.at_em)
 
         // 単位系の計算
-        if (this.namelist.data.units.unit_system.val == "A_eV_fs") {
+        if (this.unit_system == "A_eV_fs") {
             this.unit_length = 0.52917721067;
             this.unit_time = 0.02418884326505;
             this.unit_efield = 51.4220674763;
@@ -363,85 +306,107 @@ class SALMON210 {
             this.unit_efield = 1.0;
             this.unit_energy = 1.0;
         }
-        // 並進ベクトル計算
+
+
+        this.al_vec1 = {
+            1: this.al_vec1[1] / this.unit_length,
+            2: this.al_vec1[2] / this.unit_length,
+            3: this.al_vec1[3] / this.unit_length
+        }
+        this.al_vec2 = {
+            1: this.al_vec2[1] / this.unit_length,
+            2: this.al_vec2[2] / this.unit_length,
+            3: this.al_vec2[3] / this.unit_length
+        }
+        this.al_vec3 = {
+            1: this.al_vec3[1] / this.unit_length,
+            2: this.al_vec3[2] / this.unit_length,
+            3: this.al_vec3[3] / this.unit_length
+        }
+        this.al = {
+            1: this.al[1] / this.unit_length,
+            2: this.al[2] / this.unit_length,
+            3: this.al[3] / this.unit_length
+        }
+        this.dl = {
+            1: this.dl[1] / this.unit_length,
+            2: this.dl[2] / this.unit_length,
+            3: this.dl[3] / this.unit_length
+        }
+        this.dt = this.dt / this.unit_time
+        this.e_impulse = this.e_impulse / this.unit_efield
+        this.e_amplitude1 = this.e_amplitude1 / this.unit_efield
+        this.tw1 = this.tw1 / this.unit_time
+        this.omega1 = this.omega1 / this.unit_energy
+        this.e_amplitude2 = this.e_amplitude2 / this.unit_efield
+        this.tw2 = this.tw2 / this.unit_time
+        this.omega2 = this.omega2 / this.unit_energy
+        this.t1_t2 = this.t1_t2 / this.unit_time
+        this.t1_start = this.t1_start / this.unit_time
+        // this.al_em = this.al_em / this.unit_length
+        this.at_em = this.at_em / this.unit_time
+
         this.vec_a1 = {};
         this.vec_a2 = {};
         this.vec_a3 = {};
-        var system = this.namelist.data.system;
-        var rgrid = this.namelist.data.rgrid;
-        var f = 1.0 / this.unit_length;
-        if (this._is_non_orthogonal()) {
-            this.vec_a1.x = system.al_vec1.val[1] * f;
-            this.vec_a1.y = system.al_vec1.val[2] * f;
-            this.vec_a1.z = system.al_vec1.val[3] * f;
-            this.vec_a2.x = system.al_vec2.val[1] * f;
-            this.vec_a2.y = system.al_vec2.val[2] * f;
-            this.vec_a2.z = system.al_vec2.val[3] * f;
-            this.vec_a3.x = system.al_vec3.val[1] * f;
-            this.vec_a3.y = system.al_vec3.val[2] * f;
-            this.vec_a3.z = system.al_vec3.val[3] * f;
-        } else {
-            if (rgrid.dl.val[1] > 0) {
-                system.al.val[1] = rgrid.num_rgrid.val[1] * rgrid.dl.val[1];
-                system.al.val[2] = rgrid.num_rgrid.val[2] * rgrid.dl.val[2];
-                system.al.val[3] = rgrid.num_rgrid.val[3] * rgrid.dl.val[3];
-            }
-            this.vec_a1.x = system.al.val[1] * f;
-            this.vec_a1.y = 0.0;
-            this.vec_a1.z = 0.0;
-            this.vec_a2.x = 0.0;
-            this.vec_a2.y = system.al.val[2] * f;
-            this.vec_a2.z = 0.0;
-            this.vec_a3.x = 0.0;
-            this.vec_a3.y = 0.0;
-            this.vec_a3.z = system.al.val[3] * f;
-        }
+        this.vec_a1.x = this.al_vec1[1]
+        this.vec_a1.y = this.al_vec1[2]
+        this.vec_a1.z = this.al_vec1[3]
+        this.vec_a2.x = this.al_vec2[1]
+        this.vec_a2.y = this.al_vec2[2]
+        this.vec_a2.z = this.al_vec2[3]
+        this.vec_a3.x = this.al_vec3[1]
+        this.vec_a3.y = this.al_vec3[2]
+        this.vec_a3.z = this.al_vec3[3]
+        this.vec_a1.x += this.al[1]
+        this.vec_a2.y += this.al[2]
+        this.vec_a3.z += this.al[3]
+        this.vec_a1.x += this.num_rgrid[1] * this.dl[1]
+        this.vec_a2.y += this.num_rgrid[2] * this.dl[2]
+        this.vec_a3.z += this.num_rgrid[3] * this.dl[3]
 
         // 原子座標データを読み込む
         this.atom_data = this._read_atomic_coor(inputfile)
 
-        // 原子種別リストを作成
-        this.izatom = [];
-        for(var i=1; i<=this.namelist.data.system.nelem.val; i++)
-            this.izatom.push(this.namelist.data.pseudo.izatom.val[i]);
+        this.error = [];
 
-        // 波束のパラメータ
-        this.e_impulse = this.namelist.data.emfield.e_impulse.val;
-        this.ae_shape1 = this.namelist.data.emfield.ae_shape1.val;
-        this.e_amplitude1 = this.namelist.data.emfield.e_amplitude1.val / this.unit_efield;
-        this.i_wcm2_1 = this.namelist.data.emfield.i_wcm2_1.val;
-        this.tw1 = this.namelist.data.emfield.tw1.val / this.unit_time;
-        this.omega1 = this.namelist.data.emfield.omega1.val / this.unit_energy;
-        this.epdir_re1 = this.namelist.data.emfield.epdir_re1.val;
-        this.epdir_im1 = this.namelist.data.emfield.epdir_im1.val;
-        this.phi_cep1 = this.namelist.data.emfield.phi_cep1.val;
-        this.ae_shape2 = this.namelist.data.emfield.ae_shape2.val;
-        this.e_amplitude2 = this.namelist.data.emfield.e_amplitude2.val / this.unit_efield;
-        this.i_wcm2_2 = this.namelist.data.emfield.i_wcm2_2.val;
-        this.tw2 = this.namelist.data.emfield.tw2.val / this.unit_time;
-        this.omega2 = this.namelist.data.emfield.omega2.val / this.unit_energy;
-        this.epdir_re2 = this.namelist.data.emfield.epdir_re2.val;
-        this.epdir_im2 = this.namelist.data.emfield.epdir_im2.val;
-        this.phi_cep2 = this.namelist.data.emfield.phi_cep2.val;
-        this.t1_t2 = this.namelist.data.emfield.t1_t2.val / this.unit_time;
-        this.t1_start = this.namelist.data.emfield.t1_start.val / this.unit_time;
-        this.dt = this.namelist.data.tgrid.dt.val / this.unit_time;
-        this.nt = this.namelist.data.tgrid.nt.val;
-        console.log(this.dt*this.nt);
+        return;
     }
 
     _is_non_orthogonal() {
         var flag = false;
         var tmp = [
-            this.namelist.data.system.al_vec1.val,
-            this.namelist.data.system.al_vec2.val,
-            this.namelist.data.system.al_vec3.val
+            this.nml.data.system.al_vec1,
+            this.nml.data.system.al_vec2,
+            this.nml.data.system.al_vec3
         ];
         for (var i in tmp)
             for (var j in tmp[i])
                 if (tmp[i][j] != 0) flag = true
         return flag;
     }
+
+    _exclude_atomic_coor(inputfile) {
+        var buf = [];
+        var flag = true;
+        const line = inputfile.split(/\r?\n/);
+        for(var i=0; i<line.length; i++) {
+            const tmp = line[i]
+            if (tmp.match(/^\s*&atomic_(red_)?coor\s*$/)) {
+                flag = false;
+            }
+            if (flag) {
+                buf = buf.concat([tmp])
+            } else {
+                buf + buf.concat(["!" + tmp])
+            }
+            if ((! flag) && (tmp.match(/\s*\/\s*/))) {
+                flag = true;
+            }
+        }
+        return buf.join("\n");
+    }
+
 
     _read_atomic_coor(inputfile) {
         // Parse atomic coordinate
@@ -475,33 +440,27 @@ class SALMON210 {
                 continue;
             }
             var e = tmp[0];
-            var t1 = this._parseFortranFloat(tmp[1]);
-            var t2 = this._parseFortranFloat(tmp[2]);
-            var t3 = this._parseFortranFloat(tmp[3]);
+            var t1 = _parseFFloat(tmp[1]);
+            var t2 = _parseFFloat(tmp[2]);
+            var t3 = _parseFFloat(tmp[3]);
             if (reduced == false) {
-                t1 = t1 / this.namelist.data.system.al.val[1];
-                t2 = t2 / this.namelist.data.system.al.val[2];
-                t3 = t3 / this.namelist.data.system.al.val[3];
+                t1 = t1 / this.nml.data.system.al[1];
+                t2 = t2 / this.nml.data.system.al[2];
+                t3 = t3 / this.nml.data.system.al[3];
             }
             var ik = parseInt(tmp[4]);
             if (isNaN(t1) || isNaN(t2) || isNaN(t3) || isNaN(ik)) {
-                this.error.push({lineNum:i+1, msg:"invalid numeric format"});
+                // this.error.push({lineNum:i+1, msg:"invalid numeric format"});
                 continue;
             }
-            if (! (1 <= ik && ik <= this.namelist.data.system.nelem.val)) {
-                this.error.push({lineNum:i+1, msg:"undefined element index"});
+            if (! (1 <= ik && ik <= this.nml.data.system.nelem)) {
+                // this.error.push({lineNum:i+1, msg:"undefined element index"});
             }
-            var iz = this.namelist.data.pseudo.izatom.val[ik];
+            var iz = this.izatom[ik];
             buf.push({t1:t1, t2:t2, t3:t3, iz:iz, lineNum:(i+1)});
 
         }
         return buf;
-    }
-
-    _parseFortranFloat(x) {
-        if (x.match(/\s*[+-]?\s*\d*\.\d+([de][+-]?\d+)?\s*$/i))
-            return parseFloat(x.replace(/d/i, "e"));
-        return NaN;
     }
 
 

@@ -16,8 +16,8 @@ class Waveplot {
         this.epdir_re1 = {1:0.0, 2:0.0, 3:1.0};
         this.epdir_im1 = {1:0.0, 2:0.0, 3:0.0};
         this.phi_cep1 = 0.0;
-        this.ae_shape2 = 0.0;
-        this.e_amplitude2 = "none";
+        this.ae_shape2 = "none";
+        this.e_amplitude2 = 0.0;
         this.i_wcm2_2 = 0.0;
         this.tw2 = 0.0;
         this.omega2 = 0.0;
@@ -245,7 +245,7 @@ End Subroutine calc_Ac_ext_t
 */
 
     calc_Ac_ext_t(t0, delta_t, is, ie) {
- 
+
         const pi = Math.PI;
         //   use salmon_global, only: I_wcm2_1,I_wcm2_2,E_amplitude1,E_amplitude2,ae_shape1,ae_shape2, &
         //                          & epdir_re1,epdir_re2,epdir_im1,epdir_im2,tw1,tw2,t1_start,omega1,omega2, &
@@ -326,7 +326,7 @@ End Subroutine calc_Ac_ext_t
                 case 'Acos6': npower = 6; break;
                 case 'Acos8': npower = 8; break;
             }
-        
+
             // do i=is, ie
             //   t=t0+i*delta_t
             //   tt = t - 0.5d0*tw1 - t1_start
@@ -340,7 +340,9 @@ End Subroutine calc_Ac_ext_t
             // T1_T2_tmp = T1_T2 + t1_start
             for (i=is; i<ie; i++) {
                 t=t0+i*delta_t;
+
                 tt = t - 0.5*tw1 - t1_start;
+        
                 if (Math.abs(tt)<0.5*tw1) {
                     var f_env = -f0_1/omega1*(Math.cos(pi*tt/tw1))**npower
                     var theta = (omega1*tt+phi_CEP1*2*pi)
@@ -447,11 +449,12 @@ End Subroutine calc_Ac_ext_t
           if (Math.abs(tt)<0.5*tw2) {
               var f_env = -f0_2/omega2*(Math.cos(pi*tt/tw2))**npower
               var theta = (omega2*tt+phi_CEP2*2*pi)
-              for(var k=1; k<=3; k++)
+              for(var k=1; k<=3; k++) {
                   Ac_ext_t[k][i-is] = Ac_ext_t[k][i-is] + f_env * (
                       epdir_re2[k] * Math.sin(theta)
                       + epdir_im2[k] * Math.cos(theta)
                   );
+              }
           }
         }
 
@@ -518,7 +521,6 @@ End Subroutine calc_Ac_ext_t
           E_ext_t[k][i-is] = -( Ac_ext_t[k][i-is] - Ac_ext_t[k][i-1-is] ) / delta_t;
         } 
       }
-      console.log(E_ext_t);
       return [Ac_ext_t, E_ext_t];
     }
 
