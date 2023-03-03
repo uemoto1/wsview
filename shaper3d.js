@@ -138,15 +138,18 @@ class Shape3D {
     plot() {
         // 消去
         this.clear();
+
         // 座標軸描画
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);
         const nx = this.ix_max - this.ix_min + 1
         const ny = this.iy_max - this.iy_min + 1
         const nz = this.iz_max - this.iz_min + 1
-        const lx = nx * this.hx;
-        const ly = ny * this.hy;
-        const lz = nz * this.hz;
+
+        if (nx + ny * nz <= 0) {
+            this.redraw()
+            return
+        }
 
         var imat = new Int8Array(nx * ny * nz);
         for (var i=1; i<=this.n_s; i++) {
@@ -176,9 +179,12 @@ class Shape3D {
                 }
             }
         }
-
+        const lx = nx * this.hx;
+        const ly = ny * this.hy;
+        const lz = nz * this.hz;
         var l = Math.max(lx, ly, lz)
         this.model.scale.set(1/l,1/l,1/l)
+
         // 描画
         this.redraw();
     }

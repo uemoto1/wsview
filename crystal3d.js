@@ -141,6 +141,10 @@ class Crystal3D {
         const a3 = this.vec_a3;
         // 消去
         this.clear();
+        if (this.atom_data.length == 0) {
+            this.redraw()
+            return
+        }
         // 座標軸描画
         this.axes.add(this.create_axes_object());
         this.axes.position.set(-0.75, 0.75, 0.75);

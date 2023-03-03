@@ -172,6 +172,24 @@ function plot() {
         shape3d.hy = salmon210.hy_m
         shape3d.hz = salmon210.hz_m
       }
+      const ng = (shape3d.ix_max - shape3d.ix_min + 1) * (shape3d.iy_max - shape3d.iy_min + 1) * (shape3d.iz_max - shape3d.iz_min + 1)
+      if (ng > 50000) {
+        const k = Math.round(Math.cbrt(ng / 50000))
+        shape3d.ix_min = Math.round(shape3d.ix_min / k)
+        shape3d.iy_min = Math.round(shape3d.iy_min / k)
+        shape3d.iz_min = Math.round(shape3d.iz_min / k)
+        shape3d.ix_max = Math.round(shape3d.ix_max / k)
+        shape3d.iy_max = Math.round(shape3d.iy_max / k)
+        shape3d.iz_max = Math.round(shape3d.iz_max / k)
+        shape3d.hx = shape3d.hx * k
+        shape3d.hy = shape3d.hy * k
+        shape3d.hz = shape3d.hz * k
+      }
+      
+
+
+
+
       shape3d.n_s = salmon210.n_s
       shape3d.id_s = salmon210.id_s
       shape3d.typ_s = salmon210.typ_s
@@ -220,7 +238,9 @@ function changeBond() {
 
 function changeZoom() {
   crystal3d.zoom = parseInt(rangeZoom.value) * 0.01;
+  shape3d.zoom = parseInt(rangeZoom.value) * 0.01;
   crystal3d.redraw();
+  shape3d.redraw();
 }
 
 function selectAtom() {

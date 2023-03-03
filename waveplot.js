@@ -378,16 +378,24 @@ End Subroutine calc_Ac_ext_t
             //   end if
             // end do
             
-            // for (i=is; i<ie; i++) {
-            //     t=t0+i*delta_t;
-            //     tt = t - 0.5*tw1 - t1_start;
-            //     if (Math.abs(tt)<0.5*tw1) {
-            //         var f_env = -f0_1/omega1*(Math.cos(pi*tt/tw1))**npower
-            //         var theta = (omega1*tt+phi_CEP1*2*pi)
-            //         for(var k=1; k<=3; k++)
+            for (i=is; i<ie; i++) {
+                t=t0+i*delta_t;
+                tt = t - 0.5*tw1 - t1_start;
+                if (Math.abs(tt)<0.5*tw1) {
+                    for(var k=1; k<=3; k++) {
+                      Ac_ext_t[k][i-is] = (
 
-            //     }
-            // }
+                        -epdir_re1[k]*f0_1/(8.0*Math.pow(pi,2)*omega1 - 2.0*Math.pow(tw1,2)*Math.pow(omega1,3))
+                        *(
+                        (-4.0*Math.pow(pi,2)+Math.pow(tw1,2)*Math.pow(omega1,2) + Math.pow(tw1,2)*Math.pow(omega1,2)*Math.cos(2.0*pi*tt/tw1))*Math.cos(omega1*tt)
+                        +2.0*pi*(2.0*pi*Math.cos(tw1*omega1/2.0)
+                        +tw1*omega1*Math.sin(2.0*pi*tt/tw1)*Math.sin(omega1*tt)))
+              
+
+                      )
+                    }
+                  }
+            }
             
         }
         
