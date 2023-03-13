@@ -146,7 +146,7 @@ class Shape3D {
         const ny = this.iy_max - this.iy_min + 1
         const nz = this.iz_max - this.iz_min + 1
 
-        if (nx + ny * nz <= 0) {
+        if (nx * ny * nz <= 0) {
             this.redraw()
             return
         }
@@ -162,7 +162,9 @@ class Shape3D {
                 this.inf_s[i][1], this.inf_s[i][2], this.inf_s[i][3], this.inf_s[i][4], this.inf_s[i][5], this.id_s[i]);
         }
 
-        this.remove_useless_cell(imat);
+        if ((nx > 1) && (ny > 1) && (nz > 1)) {
+            this.remove_useless_cell(imat);
+        }
         const geometry = new THREE.BoxGeometry(this.hx, this.hy, this.hz);
         for(var jx=0; jx<nx; jx++) {
             for(var jy=0; jy<ny; jy++) {
