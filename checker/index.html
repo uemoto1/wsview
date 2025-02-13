@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+<title>SALMON Input File Generator</title>
+</head>
+<body>
+
+<h1>SALMON Input File Generator</h1>
+
+<form id="salmonForm">
+  <!-- 例としていくつかのキーワードとオプションを表示 -->
+  <label for="theory">Theory:</label>
+  <select id="theory">
+    <option value="dft">dft</option>
+    <option value="dft_md">dft_md</option>
+    <option value="tddft_response">tddft_response</option>
+    <option value="tddft_pulse">tddft_pulse</option>
+    <option value="single_scale_maxwell_tddft">single_scale_maxwell_tddft</option>
+    <option value="multi_scale_maxwell_tddft">multi_scale_maxwell_tddft</option>
+    <option value="maxwell">maxwell</option>
+    <option value="dft_k_expand">dft_k_expand</option>
+    <option value="sbe">sbe</option>
+    <option value="maxwell_sbe">maxwell_sbe</option>
+  </select><br><br>
+
+  <label for="yn_md">molecular dynamics (yn_md):</label>
+  <select id="yn_md">
+    <option value="n">n</option>
+    <option value="y">y</option>
+  </select><br><br>
+
+  <label for="yn_periodic">Boundary condition(yn_periodic):</label>
+  <select id="yn_periodic">
+    <option value="y">y</option>
+    <option value="n">n</option>
+  </select><br><br>
+
+  <label for="xc">xc:</label>
+  <input type="text" id="xc" value="PZ"><br><br>
+
+ 
+  <label for="nelem">Number of element (nelem):</label>
+  <input type="number" id="nelem" value="1" onchange="createAtomInputs()"><br><br>
+
+  <div id="atomInputs"></div>
+
+  <label for="atoms">Atoms:</label>
+  <select id="atoms" onchange="updateElec()">
+    <option value="">Select Atom</option>
+    <option value="H">H</option>
+    <option value="He">He</option>
+    <option value="Li">Li</option>
+    <option value="Be">Be</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="N">N</option>
+    <option value="O">O</option>
+    <option value="F">F</option>
+    <option value="Ne">Ne</option>
+    <!-- ここにさらに原子種を追加 -->
+  </select> 
+  <label for="nelec">nelec:</label>
+  <input type="number" id="nelec" readonly><br><br>
+ 
+<!--
+  <label for="nelec_spin1">nelec_spin(1):</label>
+  <input type="number" id="nelec_spin1"><br><br>
+
+  <label for="nelec_spin2">nelec_spin(2):</label>
+  <input type="number" id="nelec_spin2"><br><br>-->
+  <label for="unitSystem">Unit System:</label>
+  <select id="unitSystem" onchange="updateUnit()">
+    <option value="au">Atomic Unit (au)</option>
+    <option value="angstrom">Angstrom (Å)-eV-fs</option>
+  </select><br><br>
+
+
+  <label>Number of rgrid points (num_rgrid):</label><br>
+  <label for="Nr_x">x:</label>
+  <input type="number" id="Nr_x" value="12" onchange="updateDataSize()"><br>
+  <label for="Nr_y">y:</label>
+  <input type="number" id="Nr_y" value="12" onchange="updateDataSize()"><br>
+  <label for="Nr_z">z:</label>
+  <input type="number" id="Nr_z" value="12" onchange="updateDataSize()"><br><br>
+
+  <label>Number of kgrid points (num_kgrid):</label><br>
+  <label for="Nk_x">x:</label>
+  <input type="number" id="Nk_x" value="4" onchange="updateDataSize()"><br>
+  <label for="Nk_y">y:</label>
+  <input type="number" id="Nk_y" value="4" onchange="updateDataSize()"><br>
+  <label for="Nk_z">z:</label>
+  <input type="number" id="Nk_z" value="4" onchange="updateDataSize()"><br><br>
+
+
+  <label for="nstate">Number of states (nstate):</label>
+  <input type="number" id="nstate" value="16" onchange="updateDataSize()"><br><br>
+
+  <label for="dataSize">Data Size (MB):</label>
+  <input type="text" id="dataSize" readonly><br><br>
+
+  <label for="dt">dt (</label><span id="dtUnit">au</span>):</label>
+  <input type="number" id="dt" step="0.01" value="0.01" onchange="updateTotalTime()"><br><br>
+
+    <label for="nt">nt:</label>
+  <input type="number" id="nt" value="100" onchange="updateTotalTime()"><br><br>
+
+  <label for="totalTime">Total Time (nt*dt):</label>
+  <input type="number" id="totalTime" readonly><br><br> 
+  <button type="button" onclick="generateInput()">Generate Input File</button>
+  <div id="error_message" style="color:red;"></div>
+</form>
+
+<textarea id="output" rows="20" cols="80"></textarea>
+
+<script>
+    function updateDataSize() {
+        let Nr_x = parseInt(document.getElementById("Nr_x").value);
+        let Nr_y = parseInt(document.getElementById("Nr_y").value);
+        let Nr_z = parseInt(document.getElementById("Nr_z").value);
+        let Nk_x = parseInt(document.getElementById("Nk_x").value);
+        let Nk_y = parseInt(document.getElementById("Nk_y").value);
+        let Nk_z = parseInt(document.getElementById("Nk_z").value);
+        let nstate = parseInt(document.getElementById("nstate").value);
+        let Nr = Nr_x * Nr_y * Nr_z;
+        let Nk = Nk_x * Nk_y * Nk_z;
+        let dataSize = 0;
+      
+        if (!isNaN(Nr) && !isNaN(Nk) && !isNaN(nstate) && Nr > 0 && Nk > 0 && nstate > 0) {
+          dataSize = Nr * Nk * nstate * 8;
+          dataSize = dataSize / (1024 * 1024);
+          document.getElementById("dataSize").value = dataSize.toFixed(2);
+        } else {
+          document.getElementById("dataSize").value = "";
+        }
+      }
+
+    function updateTotalTime() {
+        let nt = parseFloat(document.getElementById("nt").value);
+        let dt = parseFloat(document.getElementById("dt").value);
+        if (!isNaN(nt) && !isNaN(dt)) {
+          document.getElementById("totalTime").value = (nt * dt).toFixed(4); // 小数点以下3桁で表示
+        } else {
+          document.getElementById("totalTime").value = "";
+        }
+      }
+
+    const atomData = {
+        "H": 1, "He": 2, "Li": 1, "Be": 2, "B": 3, "C": 4, "N": 5, "O": 6, "F": 7, "Ne": 8,
+        // ここにさらに原子種と価電子数のペアを追加
+      };
+      function createAtomInputs() {
+        let nelem = parseInt(document.getElementById("nelem").value);
+        let atomInputsDiv = document.getElementById("atomInputs");
+        atomInputsDiv.innerHTML = ""; // 前回の入力をクリア
+      
+        for (let i = 0; i < nelem; i++) {
+          let atomDiv = document.createElement("div");
+          atomDiv.innerHTML = `
+            <label for="atom${i}">Element ${i + 1}:</label>
+            <select id="atom${i}" onchange="updateElec()">
+              <option value="">Select Atom</option>
+              <option value="H">H</option>
+              <option value="He">He</option>
+              <option value="Li">Li</option>
+              <option value="Be">Be</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="N">N</option>
+              <option value="O">O</option>
+              <option value="F">F</option>
+              <option value="Ne">Ne</option>
+              <!-- ここにさらに原子種を追加 -->
+            </select>
+            <input type="number" id="numAtom${i}" value="1" onchange="updateElec()" placeholder="Number of Atoms">
+          `;
+          atomInputsDiv.appendChild(atomDiv);
+        }
+        updateElec();
+      }
+      
+      function updateElec() {
+        let nelem = parseInt(document.getElementById("nelem").value);
+        let totalElec = 0;
+        for (let i = 0; i < nelem; i++) {
+          let atom = document.getElementById(`atom${i}`).value;
+          let num = parseInt(document.getElementById(`numAtom${i}`).value);
+          if (atom in atomData && !isNaN(num)) {
+            totalElec += atomData[atom] * num;
+          }
+        }
+        document.getElementById("nelec").value = totalElec;
+      }
+
+      function updateUnit() {
+        let unitSystem = document.getElementById("unitSystem").value;
+        let dtUnitSpan = document.getElementById("dtUnit");
+        if (unitSystem === "au") {
+          dtUnitSpan.textContent = "au";
+        } else {
+          dtUnitSpan.textContent = "fs";
+        }
+      }
+
+      function handleCIFUpload(event) {
+        let file = event.target.files[0];
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let formData = new FormData();
+            //formData.append('cif_file', new Blob([e.target.result], { type: 'text/plain' })); // Blobとして追加-->
+            formData.append('cif_file', new Blob([e.target.result], { type: 'application/octet-stream' }));
+            fetch('/parse_cif', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert("Error parsing CIF file: " + data.error);
+                } else {
+                    displayAtomicPositions(data.atomic_positions);
+                }
+            })
+            .catch(error => {
+                alert("Error uploading or parsing CIF file: " + error);
+            });
+        };
+        reader.readAsText(file);
+    }
+    
+    function displayAtomicPositions(atomic_positions) {
+      let atomic_coor_section = "&atomic_coor\n";
+      atomic_positions.forEach(site => {
+        atomic_coor_section += `${site.species} ${site.x} ${site.y} ${site.z} 1\n`;
+      });
+      atomic_coor_section += "&end\n";
+    }
+function generateInput() {
+    let unitSystem = document.getElementById("unitSystem").value;
+    let dt = parseFloat(document.getElementById("dt").value);
+    let nt = parseFloat(document.getElementById("nt").value);
+    let nelem = parseInt(document.getElementById("nelem").value);
+    let nelec = parseInt(document.getElementById("nelec").value);
+    let Nr_x = parseInt(document.getElementById("Nr_x").value);
+    let Nr_y = parseInt(document.getElementById("Nr_y").value);
+    let Nr_z = parseInt(document.getElementById("Nr_z").value);
+    let Nk_x = parseInt(document.getElementById("Nk_x").value);
+    let Nk_y = parseInt(document.getElementById("Nk_y").value);
+    let Nk_z = parseInt(document.getElementById("Nk_z").value);
+    let nstate = parseInt(document.getElementById("nstate").value);
+
+    let output = ""; 
+
+    output += "&calculation\n";
+    output += `theory = "${document.getElementById("theory").value}"\n`;
+    output += `yn_md = "${document.getElementById("yn_md").value}"\n`; 
+    output += "&end\n";
+
+    output += "&control\n";
+    output += "&end\n";
+
+    output += "&units\n";
+    output += `unit_system = "${unitSystem}"\n`;
+    output += "&end\n";
+
+    output += "&system\n";
+    output += `yn_periodic = "${document.getElementById("yn_periodic").value}"\n`;
+    output += `nelem = ${nelem}\n`;
+    if (!isNaN(nelec) && nelec > 0) output += `nelec = ${nelec}\n`;
+    output += `nstate = ${nstate}\n`;
+    output += "&end\n";
+
+    output += "&functional\n";
+    output += `xc = "${document.getElementById("xc").value}"\n`;
+    output += "&end\n";
+
+    output += "&rgrid\n";
+    output += `num_rgrid(1) = ${Nr_x}\n`;
+    output += `num_rgrid(2) = ${Nr_y}\n`;
+    output += `num_rgrid(3) = ${Nr_z}\n`;
+    output += "&end\n";
+
+    output += "&kgrid\n";
+    output += `num_kgrid(1) = ${Nk_x}\n`;
+    output += `num_kgrid(2) = ${Nk_y}\n`;
+    output += `num_kgrid(3) = ${Nk_z}\n`;
+    output += "&end\n";
+
+    output += "&tgrid\n";
+    output += `dt = ${dt}\n`; 
+    output += `nt = ${nt}\n`;
+    output += "&end\n";
+    output += atomic_coor_section; 
+    output += "&end\n";
+
+    document.getElementById("output").value = output;
+    generateInput()
+  }
+
+  const form = document.getElementById('salmonForm');
+
+// 既存のボタンを削除
+const existingButtons = form.querySelectorAll('button');
+existingButtons.forEach(button => button.remove());
+
+// 新しいボタン要素を作成して追加
+const generateButton = document.createElement('button');
+generateButton.type = 'button';
+generateButton.textContent = 'Generate Input File';
+generateButton.onclick = generateInput;
+form.appendChild(generateButton); // form の最後に追加
+
+const cifFileInput = document.createElement('label');
+cifFileInput.htmlFor = 'cifFileInput';
+cifFileInput.textContent = 'CIF File:';
+
+const cifInput = document.createElement('input');
+cifInput.type = 'file';
+cifInput.id = 'cifFileInput';
+cifInput.accept = '.cif';
+cifInput.onchange = handleCIFUpload;
+
+form.insertBefore(cifFileInput, generateButton); // generateButton の前に挿入
+form.insertBefore(cifInput, generateButton);     // generateButton の前に挿入
+
+
+createAtomInputs(); // ページロード時に一度実行
+updateUnit();
+updateTotalTime();
+updateDataSize();
+document.getElementById("Nr_x").addEventListener("change", updateDataSize);
+document.getElementById("Nr_y").addEventListener("change", updateDataSize);
+document.getElementById("Nr_z").addEventListener("change", updateDataSize);
+document.getElementById("Nk_x").addEventListener("change", updateDataSize);
+document.getElementById("Nk_y").addEventListener("change", updateDataSize);
+document.getElementById("Nk_z").addEventListener("change", updateDataSize);
+document.getElementById("nstate").addEventListener("change", updateDataSize); 
+</script>
+
+</body>
+</html>
+
+
